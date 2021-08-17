@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2019",
-    "module": "commonjs",
+    "module": "ES2015",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "lib",
@@ -23,5 +23,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "lib": ["es2015"],
-  "include": ["./src/**/*", "./test/index.d.ts"]
+  "include": ["./src/**/*"]
 }
