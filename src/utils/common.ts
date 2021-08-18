@@ -1,5 +1,13 @@
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
-import { ExternalOutput, Output, Utxo } from '../types/types';
+import { dummyStakingAddress, dummyStakingKeyHash } from '../constants';
+import {
+  ExternalOutput,
+  Certificate,
+  Output,
+  Utxo,
+  CertificateType,
+  Withdrawal,
+} from '../types/types';
 
 export const CARDANO = {
   PROTOCOL_MAGICS: {
@@ -177,3 +185,87 @@ export const getOutputCost = (
     minOutputAmount, // should match https://cardano-ledger.readthedocs.io/en/latest/explanations/min-utxo.html
   };
 };
+
+export const prepareWithdrawals = (
+  withdrawals: Withdrawal[],
+): CardanoWasm.Withdrawals => {
+  const preparedWithdrawals = CardanoWasm.Withdrawals.new();
+
+  withdrawals.forEach(withdrawal => {
+    const rewardAddress = CardanoWasm.RewardAddress.from_address(
+      CardanoWasm.Address.from_bech32(
+        withdrawal.stakingAddress ?? dummyStakingAddress,
+      ),
+    );
+
+    if (rewardAddress) {
+      preparedWithdrawals.insert(
+        rewardAddress,
+        bigNumFromStr(withdrawal.amount),
+      );
+    }
+  });
+
+  return preparedWithdrawals;
+};
+
+export const prepareCertificates = (
+  certificates: Certificate[],
+): CardanoWasm.Certificates => {
+  const preparedCertificates = CardanoWasm.Certificates.new();
+
+  const buildStakeCred = (stakingKeyHash?: string) =>
+    CardanoWasm.StakeCredential.from_keyhash(
+      CardanoWasm.Ed25519KeyHash.from_bech32(
+        stakingKeyHash ?? dummyStakingKeyHash,
+      ),
+    );
+
+  certificates.forEach(cert => {
+    if (cert.type === CertificateType.STAKE_REGISTRATION) {
+      preparedCertificates.add(
+        CardanoWasm.Certificate.new_stake_registration(
+          CardanoWasm.StakeRegistration.new(
+            buildStakeCred(cert.stakingKeyHash),
+          ),
+        ),
+      );
+    } else if (cert.type === CertificateType.STAKE_DELEGATION) {
+      preparedCertificates.add(
+        CardanoWasm.Certificate.new_stake_delegation(
+          CardanoWasm.StakeDelegation.new(
+            buildStakeCred(cert.stakingKeyHash),
+            CardanoWasm.Ed25519KeyHash.from_bytes(
+              Buffer.from(cert.pool, 'hex'),
+            ),
+          ),
+        ),
+      );
+    } else if (cert.type === CertificateType.STAKE_DEREGISTRATION) {
+      preparedCertificates.add(
+        CardanoWasm.Certificate.new_stake_deregistration(
+          CardanoWasm.StakeDeregistration.new(
+            buildStakeCred(cert.stakingKeyHash),
+          ),
+        ),
+      );
+    }
+  });
+  return preparedCertificates;
+};
+
+export function calculateRequiredDeposit(
+  certificates: Certificate[],
+): CardanoWasm.BigNum {
+  const CertificateDeposit = {
+    [CertificateType.STAKE_DELEGATION]: '0',
+    [CertificateType.STAKE_POOL_REGISTRATION]: '500000000',
+    [CertificateType.STAKE_REGISTRATION]: '2000000',
+    [CertificateType.STAKE_DEREGISTRATION]: '-2000000',
+  } as const;
+  return certificates.reduce(
+    (acc, cert) =>
+      acc.checked_add(bigNumFromStr(CertificateDeposit[cert.type])),
+    bigNumFromStr('0'),
+  );
+}

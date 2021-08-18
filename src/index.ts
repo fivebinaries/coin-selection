@@ -1,19 +1,25 @@
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
+  Certificate,
+  ChangeAddress,
   ChangeOutput,
   CoinSelectionResult,
   ExternalOutput,
   Output,
   Utxo,
+  Withdrawal,
 } from './types/types';
 import {
   bigNumFromStr,
+  calculateRequiredDeposit,
   getAddressType,
   getAssetAmount,
   getInputCost,
   getOutputCost,
   getSumAssetAmount,
   getSumOutputAmount,
+  prepareCertificates,
+  prepareWithdrawals,
   sortUtxos,
 } from './utils/common';
 
@@ -33,14 +39,12 @@ const ERROR = {
   },
 };
 
-export const coinSelection = (
+export const largestFirst = (
   utxos: Utxo[],
   outputs: ExternalOutput[],
-  changeAddress: {
-    address: string;
-    path: string;
-    stakingPath: string;
-  },
+  changeAddress: ChangeAddress,
+  certificates: Certificate[],
+  withdrawals: Withdrawal[],
   byron?: boolean,
 ): CoinSelectionResult => {
   if (utxos.length === 0) {
@@ -48,8 +52,28 @@ export const coinSelection = (
   }
 
   const usedUtxos: Utxo[] = [];
+
+  // add withdrawals and certs to correctly set a fee
+  const preparedCertificates = prepareCertificates(certificates);
+  const preparedWithdrawals = prepareWithdrawals(withdrawals);
+
+  if (preparedCertificates.len() > 0) {
+    txBuilder.set_certs(preparedCertificates);
+  }
+  if (preparedWithdrawals.len() > 0) {
+    txBuilder.set_withdrawals(preparedWithdrawals);
+  }
+
+  // TODO: negative value in case of deregistration (-2000000), but we still need enough utxos to cover fee which can't be paid from returned deposit
+  const deposit = calculateRequiredDeposit(certificates);
+  const totalWithdrawal = withdrawals.reduce(
+    (acc, withdrawal) => acc.checked_add(bigNumFromStr(withdrawal.amount)),
+    bigNumFromStr('0'),
+  );
+
+  // calc initial fee
   let totalFeesAmount = txBuilder.min_fee();
-  let utxosTotalAmount = bigNumFromStr('0');
+  let utxosTotalAmount = totalWithdrawal;
   const sortedUtxos = sortUtxos(utxos);
 
   const preparedOutputs = outputs.map(output => {
@@ -82,11 +106,13 @@ export const coinSelection = (
     bigNumFromStr('0'),
   );
 
-  // Sum of all form outputs (ADA only)
-  const totalOutputAmount = preparedOutputs.reduce(
-    (acc, output) => acc.checked_add(bigNumFromStr(output.amount)),
-    bigNumFromStr('0'),
-  );
+  // Sum of all form outputs (ADA only) and withdrawals
+  const totalOutputAmount = preparedOutputs
+    .reduce(
+      (acc, output) => acc.checked_add(bigNumFromStr(output.amount)),
+      bigNumFromStr('0'),
+    )
+    .checked_add(deposit);
 
   // add external outputs fees to total
   totalFeesAmount = totalFeesAmount.checked_add(totalOutputsFee);
@@ -150,6 +176,7 @@ export const coinSelection = (
         changeOutputAssets,
       );
 
+      // calculate change output amount as utxosTotalAmount - totalFeesAmount - change output fee
       const totalSpent = totalOutputAmount
         .checked_add(totalFeesAmount)
         .checked_add(changeOutputCost.outputFee);
@@ -161,7 +188,8 @@ export const coinSelection = (
         changeOutputAssets.length > 0 ||
         changeOutputAmount.compare(changeOutputCost.minOutputAmount) > 0;
 
-      let requiredAmount = totalFeesAmount.checked_add(totalOutputAmount); // fees + regulars outputs
+      let requiredAmount = totalFeesAmount.checked_add(totalOutputAmount);
+      // fees + regulars outputs
       // let addAnotherUtxo = false;
       if (isChangeOutputNeeded) {
         if (changeOutputAmount.compare(changeOutputCost.minOutputAmount) < 0) {
@@ -268,8 +296,41 @@ export const coinSelection = (
     inputs: usedUtxos,
     outputs: outputsWithChange,
     fee: totalFeesAmount.to_str(),
-    totalSpent: totalSpent.to_str(),
+    totalSpent: totalSpent.to_str(), //
+    deposit: deposit.to_str(),
+    withdrawal: totalWithdrawal.to_str(),
   };
+};
+
+export const coinSelection = (
+  utxos: Utxo[],
+  outputs: ExternalOutput[],
+  changeAddress: ChangeAddress,
+  certificates: Certificate[],
+  withdrawals: Withdrawal[],
+  setMax: boolean,
+  byron?: boolean,
+): CoinSelectionResult => {
+  if (setMax) {
+    //   TODO: pick max
+    return largestFirst(
+      utxos,
+      outputs,
+      changeAddress,
+      certificates,
+      withdrawals,
+      byron,
+    );
+  } else {
+    return largestFirst(
+      utxos,
+      outputs,
+      changeAddress,
+      certificates,
+      withdrawals,
+      byron,
+    );
+  }
 };
 
 export * as trezorUtils from './utils/trezor/transformations';
