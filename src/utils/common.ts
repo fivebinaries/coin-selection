@@ -1,11 +1,14 @@
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
-import { dummyStakingAddress, dummyStakingKeyHash } from '../constants';
+import {
+  dummyStakingAddress,
+  dummyStakingKeyHash,
+  CertificateType,
+} from '../constants';
 import {
   ExternalOutput,
   Certificate,
   Output,
   Utxo,
-  CertificateType,
   Withdrawal,
 } from '../types/types';
 
@@ -216,8 +219,10 @@ export const prepareCertificates = (
 
   const buildStakeCred = (stakingKeyHash?: string) =>
     CardanoWasm.StakeCredential.from_keyhash(
-      CardanoWasm.Ed25519KeyHash.from_bech32(
-        stakingKeyHash ?? dummyStakingKeyHash,
+      CardanoWasm.Ed25519KeyHash.from_bytes(
+        Uint8Array.from(
+          Buffer.from(stakingKeyHash ?? dummyStakingKeyHash, 'hex'),
+        ),
       ),
     );
 
