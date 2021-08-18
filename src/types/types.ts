@@ -1,3 +1,5 @@
+import { CertificateType } from '../constants';
+
 export interface Utxo {
   address: string; // address to which the utxo belongs to (necessary only for calculating correct cost of an input, maybe could be replaced by a dummy address)
   txHash: string;
@@ -76,28 +78,23 @@ export interface Withdrawal {
   amount: string;
 }
 
-export enum CertificateType {
-  STAKE_REGISTRATION = 0,
-  STAKE_DEREGISTRATION = 1,
-  STAKE_DELEGATION = 2,
-  STAKE_POOL_REGISTRATION = 3,
-}
+export type CertificateTypeType = typeof CertificateType;
 
 export interface CertificateStakeRegistration {
   type:
-    | CertificateType.STAKE_REGISTRATION
-    | CertificateType.STAKE_DEREGISTRATION;
+    | CertificateTypeType['STAKE_REGISTRATION']
+    | CertificateTypeType['STAKE_DEREGISTRATION'];
   stakingKeyHash?: string;
 }
 
 export interface CertificateStakeDelegation {
-  type: CertificateType.STAKE_DELEGATION;
+  type: CertificateTypeType['STAKE_DELEGATION'];
   stakingKeyHash?: string;
   pool: string;
 }
 
 export interface CertificateStakePoolRegistration {
-  type: CertificateType.STAKE_POOL_REGISTRATION;
+  type: CertificateTypeType['STAKE_POOL_REGISTRATION'];
   pool_parameters: Record<string, unknown>;
 }
 
