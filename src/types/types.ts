@@ -8,6 +8,12 @@ export interface Utxo {
   }[];
 }
 
+export interface ChangeAddress {
+  address: string;
+  path: string;
+  stakingPath: string;
+}
+
 export interface CardanoCertificatePointer {
   blockIndex: number;
   txIndex: number;
@@ -61,4 +67,41 @@ export interface CoinSelectionResult {
   outputs: Output[];
   fee: string;
   totalSpent: string;
+  deposit: string;
+  withdrawal: string;
 }
+
+export interface Withdrawal {
+  stakingAddress?: string;
+  amount: string;
+}
+
+export enum CertificateType {
+  STAKE_REGISTRATION = 0,
+  STAKE_DEREGISTRATION = 1,
+  STAKE_DELEGATION = 2,
+  STAKE_POOL_REGISTRATION = 3,
+}
+
+export interface CertificateStakeRegistration {
+  type:
+    | CertificateType.STAKE_REGISTRATION
+    | CertificateType.STAKE_DEREGISTRATION;
+  stakingKeyHash?: string;
+}
+
+export interface CertificateStakeDelegation {
+  type: CertificateType.STAKE_DELEGATION;
+  stakingKeyHash?: string;
+  pool: string;
+}
+
+export interface CertificateStakePoolRegistration {
+  type: CertificateType.STAKE_POOL_REGISTRATION;
+  pool_parameters: Record<string, unknown>;
+}
+
+export type Certificate =
+  | CertificateStakeRegistration
+  | CertificateStakeDelegation
+  | CertificateStakePoolRegistration;
