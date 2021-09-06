@@ -1,5 +1,9 @@
-import { CardanoInput, CardanoOutput } from '../../types/trezor';
-import { Output, Utxo } from '../../types/types';
+import {
+  CardanoAddressParameters,
+  CardanoInput,
+  CardanoOutput,
+} from '../../types/trezor';
+import { FinalOutput, Utxo } from '../../types/types';
 import { parseAsset } from '../common';
 
 interface AssetInPolicy {
@@ -28,7 +32,6 @@ export const transformToTokenBundle = (
       const assetInfo = parseAsset(asset.unit);
       if (assetInfo.policyId !== policyId) return;
 
-      // TODO: Looks like transaction is invalid if one of the asset doens't have proper assetName (we are sending assetNameInHex set to empty string)
       assetsInPolicy.push({
         assetNameBytes: assetInfo.assetNameInHex,
         amount: asset.quantity,
@@ -52,16 +55,18 @@ export const transformToTrezorInput = (
   prev_index: utxo.outputIndex,
 });
 
-export const transformToTrezorOutput = (output: Output): CardanoOutput => {
-  let params;
+export const transformToTrezorOutput = (output: FinalOutput): CardanoOutput => {
+  let params:
+    | { address: string }
+    | { addressParameters: CardanoAddressParameters };
 
-  if ('address' in output) {
+  if (output.addressParameters) {
     params = {
-      address: output.address,
+      addressParameters: output.addressParameters,
     };
   } else {
     params = {
-      addressParameters: output.addressParameters,
+      address: output.address,
     };
   }
 

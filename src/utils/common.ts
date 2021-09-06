@@ -3,13 +3,16 @@ import {
   dummyStakingAddress,
   dummyStakingKeyHash,
   CertificateType,
+  dummyAddress,
 } from '../constants';
 import {
-  ExternalOutput,
   Certificate,
   Output,
   Utxo,
   Withdrawal,
+  ChangeAddress,
+  OutputCost,
+  UserOutput,
 } from '../types/types';
 
 export const CARDANO = {
@@ -74,18 +77,18 @@ export const parseAsset = (
 };
 
 export const buildMultiAsset = (
-  multiAsset: CardanoWasm.MultiAsset,
   assets: {
     unit: string;
     quantity: string;
   }[],
 ): CardanoWasm.MultiAsset => {
+  const multiAsset = CardanoWasm.MultiAsset.new();
   assets.forEach(assetEntry => {
     const asset = CardanoWasm.Assets.new();
     const { policyId, assetNameInHex } = parseAsset(assetEntry.unit);
     asset.insert(
       CardanoWasm.AssetName.new(Buffer.from(assetNameInHex, 'hex')),
-      bigNumFromStr(assetEntry.quantity),
+      bigNumFromStr(assetEntry.quantity || '0'), // fallback for an empty string
     );
     const scriptHash = CardanoWasm.ScriptHash.from_bytes(
       Buffer.from(policyId, 'hex'),
@@ -125,12 +128,14 @@ export const getSumOutputAmount = (outputs: Output[], asset = 'lovelace') =>
     bigNumFromStr('0'),
   );
 
-export const sortUtxos = (utxos: Utxo[], asset = 'lovelace') =>
-  utxos.sort((u1, u2) =>
+export const sortUtxos = (utxos: Utxo[], asset = 'lovelace') => {
+  const copy: Utxo[] = JSON.parse(JSON.stringify(utxos));
+  return copy.sort((u1, u2) =>
     bigNumFromStr(getAssetAmount(u2, asset)).compare(
       bigNumFromStr(getAssetAmount(u1, asset)),
     ),
   );
+};
 
 export const getInputCost = (
   txBuilder: CardanoWasm.TransactionBuilder,
@@ -148,8 +153,7 @@ export const getInputCost = (
   const inputValue = CardanoWasm.Value.new(bigNumFromStr(getAssetAmount(utxo)));
   const assets = utxo.amount.filter(a => a.unit !== 'lovelace');
   if (assets) {
-    const multiAsset = CardanoWasm.MultiAsset.new();
-    buildMultiAsset(multiAsset, assets);
+    const multiAsset = buildMultiAsset(assets);
     inputValue.set_multiasset(multiAsset);
   }
 
@@ -163,23 +167,22 @@ export const getInputCost = (
 
 export const getOutputCost = (
   txBuilder: CardanoWasm.TransactionBuilder,
-  output: Pick<ExternalOutput, 'amount' | 'assets' | 'address'>,
-  assets: { unit: string; quantity: string }[] | null,
+  output: Output,
   minUtxoValue = bigNumFromStr('1000000'),
-) => {
+): OutputCost => {
   let minOutputAmount = minUtxoValue; // ADA only output
   let outputValue = CardanoWasm.Value.new(minOutputAmount);
 
-  if (assets?.length) {
-    const multiAsset = CardanoWasm.MultiAsset.new();
-    buildMultiAsset(multiAsset, assets);
-
+  if (output.assets.length > 0) {
+    const multiAsset = buildMultiAsset(output.assets);
     minOutputAmount = getMinAdaRequired(multiAsset, minUtxoValue);
     outputValue = CardanoWasm.Value.new(minOutputAmount);
     outputValue.set_multiasset(multiAsset);
   }
 
-  const outputAddr = CardanoWasm.Address.from_bech32(output.address); // TODO: compatibility with byron
+  const outputAddr = CardanoWasm.Address.from_bech32(
+    output.address ?? dummyAddress,
+  ); // TODO: compatibility with byron
   const testOutput = CardanoWasm.TransactionOutput.new(outputAddr, outputValue);
   const outputFee = txBuilder.fee_for_output(testOutput);
   return {
@@ -259,18 +262,189 @@ export const prepareCertificates = (
   return preparedCertificates;
 };
 
-export function calculateRequiredDeposit(
+export const calculateRequiredDeposit = (
   certificates: Certificate[],
-): CardanoWasm.BigNum {
+): number => {
   const CertificateDeposit = {
-    [CertificateType.STAKE_DELEGATION]: '0',
-    [CertificateType.STAKE_POOL_REGISTRATION]: '500000000',
-    [CertificateType.STAKE_REGISTRATION]: '2000000',
-    [CertificateType.STAKE_DEREGISTRATION]: '-2000000',
+    [CertificateType.STAKE_DELEGATION]: 0,
+    [CertificateType.STAKE_POOL_REGISTRATION]: 500000000,
+    [CertificateType.STAKE_REGISTRATION]: 2000000,
+    [CertificateType.STAKE_DEREGISTRATION]: -2000000,
   } as const;
   return certificates.reduce(
-    (acc, cert) =>
-      acc.checked_add(bigNumFromStr(CertificateDeposit[cert.type])),
-    bigNumFromStr('0'),
+    (acc, cert) => (acc += CertificateDeposit[cert.type]),
+    0,
   );
-}
+};
+
+export const setMinUtxoValueForOutputs = (
+  txBuilder: CardanoWasm.TransactionBuilder,
+  outputs: UserOutput[],
+): UserOutput[] => {
+  const preparedOutputs = outputs.map(output => {
+    // sets minimal output ADA amount in case of multi-asset output
+    const { minOutputAmount } = getOutputCost(txBuilder, output);
+    const outputAmount = bigNumFromStr(output.amount || '0');
+
+    let amount;
+    if (output.assets.length > 0 && outputAmount.compare(minOutputAmount) < 0) {
+      amount = minOutputAmount.to_str();
+    } else {
+      amount = output.amount;
+    }
+
+    if (
+      output.setMax &&
+      output.assets.length > 0 &&
+      !output.assets[0].quantity
+    ) {
+      output.assets[0].quantity = '0';
+    }
+
+    return {
+      ...output,
+      // if output contains assets make sure that minUtxoValue is at least minOutputAmount  (even for output where we want to setMax)
+      amount,
+    } as UserOutput;
+  });
+  return preparedOutputs;
+};
+
+export const prepareChangeOutput = (
+  txBuilder: CardanoWasm.TransactionBuilder,
+  usedUtxos: Utxo[],
+  preparedOutputs: Output[],
+  changeAddress: ChangeAddress,
+  utxosTotalAmount: CardanoWasm.BigNum,
+  totalOutputAmount: CardanoWasm.BigNum,
+  totalFeesAmount: CardanoWasm.BigNum,
+  byron?: boolean,
+): OutputCost | null => {
+  // change output amount should be lowered by the cost of the change output (fee + minUtxoVal)
+  // The cost will be subtracted once we calculate it.
+  const placeholderChangeOutputAmount = utxosTotalAmount.clamped_sub(
+    totalFeesAmount.checked_add(totalOutputAmount),
+  );
+  const uniqueAssets: string[] = [];
+  usedUtxos.forEach(utxo => {
+    const assets = utxo.amount.filter(a => a.unit !== 'lovelace');
+    assets.forEach(asset => {
+      if (!uniqueAssets.includes(asset.unit)) {
+        uniqueAssets.push(asset.unit);
+      }
+    });
+  });
+
+  const changeOutputAssets = uniqueAssets
+    .map(assetUnit => {
+      const assetInputAmount = getSumAssetAmount(usedUtxos, assetUnit);
+      const assetSpentAmount = getSumOutputAmount(preparedOutputs, assetUnit);
+      return {
+        unit: assetUnit,
+        quantity: assetInputAmount.clamped_sub(assetSpentAmount).to_str(),
+      };
+    })
+    .filter(asset => asset.quantity !== '0');
+
+  const changeOutputCost = getOutputCost(txBuilder, {
+    address: changeAddress.address,
+    amount: placeholderChangeOutputAmount.to_str(),
+    assets: changeOutputAssets,
+  });
+
+  // calculate change output amount as utxosTotalAmount - totalFeesAmount - change output fee
+  const totalSpent = totalOutputAmount
+    .checked_add(totalFeesAmount)
+    .checked_add(changeOutputCost.outputFee);
+  let changeOutputAmount = utxosTotalAmount.clamped_sub(totalSpent);
+
+  // Sum of all tokens in utxos must be same as sum of the tokens in external + change outputs
+  // If computed change output doesn't contain any tokens then it makes sense to add it only if the fee + minUtxoValue is less then the amount
+  const isChangeOutputNeeded =
+    changeOutputAssets.length > 0 ||
+    changeOutputAmount.compare(changeOutputCost.minOutputAmount) >= 0;
+
+  if (isChangeOutputNeeded) {
+    if (changeOutputAmount.compare(changeOutputCost.minOutputAmount) < 0) {
+      // computed change amount would be below minUtxoValue
+      // set change output amount to met minimum requirements for minUtxoValue
+      changeOutputAmount = changeOutputCost.minOutputAmount;
+    }
+
+    // WARNING: It returns a change output also in a case where although it is needed because it contains additional assets but we don't have enough utxos to cover the output cost
+    return {
+      outputFee: changeOutputCost.outputFee,
+      minOutputAmount: changeOutputCost.minOutputAmount,
+      output: {
+        amount: changeOutputAmount.to_str(),
+        addressParameters: {
+          path: changeAddress.path,
+          addressType: getAddressType(byron),
+          stakingPath: changeAddress.stakingPath,
+        },
+        assets: changeOutputAssets,
+      },
+    };
+  }
+  // Change output not needed
+  return null;
+};
+
+export const getTxBuilder = () =>
+  CardanoWasm.TransactionBuilder.new(
+    CardanoWasm.LinearFee.new(bigNumFromStr('44'), bigNumFromStr('155381')),
+    bigNumFromStr('1000000'),
+    // pool deposit
+    bigNumFromStr('500000000'),
+    // key deposit
+    bigNumFromStr('2000000'),
+  );
+
+export const assetsAmountSatisfied = (
+  utxos: Utxo[],
+  outputs: Output[],
+): boolean => {
+  let assetsAmountSatisfied = true;
+  outputs.forEach(output => {
+    if (output.assets.length > 0) {
+      const asset = output.assets[0];
+      const assetAmountInUtxos = getSumAssetAmount(utxos, asset.unit);
+      if (assetAmountInUtxos.compare(bigNumFromStr(asset.quantity)) < 0) {
+        assetsAmountSatisfied = false;
+      }
+    }
+  });
+  return assetsAmountSatisfied;
+};
+
+export const getInitialUtxoSet = (
+  utxos: Utxo[],
+  maxOutput: UserOutput | undefined,
+): {
+  used: Utxo[];
+  remaining: Utxo[];
+} => {
+  // Picks all utxos containing an asset on which the user requested to set maximum value
+  if (!maxOutput)
+    return {
+      used: [],
+      remaining: utxos,
+    };
+
+  const used: Utxo[] = [];
+  const remaining: Utxo[] = [];
+
+  const maxOutputAsset = maxOutput.assets[0]?.unit ?? 'lovelace';
+  // either all UTXOs will be used (send max for ADA output) or initial set of used utxos will contain all utxos containing given token
+  utxos.forEach(u => {
+    if (u.amount.find(a => a.unit === maxOutputAsset)) {
+      used.push(u);
+    } else {
+      remaining.push(u);
+    }
+  });
+  return {
+    used,
+    remaining,
+  };
+};

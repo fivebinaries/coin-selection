@@ -23,5 +23,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "lib": ["es2015"],
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*"],
 }
