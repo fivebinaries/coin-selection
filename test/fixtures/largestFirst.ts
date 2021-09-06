@@ -38,6 +38,19 @@ const utxo2 = Object.freeze({
   ],
 });
 
+const utxo3 = Object.freeze({
+  address:
+    'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
+  txHash: '3c388acb799a37a4f1cc99bec7626637b0b80626b9ef7c7a687282cab701178d',
+  outputIndex: 2,
+  amount: [
+    {
+      quantity: '10000000',
+      unit: 'lovelace',
+    },
+  ],
+});
+
 export const nonFinalCompose = [
   {
     description: 'Non-final compose: amount not filled',
@@ -179,6 +192,38 @@ export const coinSelection = [
           },
           amount: '1844619',
           assets: [],
+        },
+      ],
+    },
+  },
+  {
+    description: 'set max on ADA output, no change',
+    utxos: [utxo1, utxo3],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: undefined,
+        assets: [],
+        setMax: true,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    options: { byron: false },
+    result: {
+      max: '14828735',
+      totalSpent: '15000000',
+      fee: '171265',
+      inputs: [utxo1, utxo3],
+      outputs: [
+        {
+          address:
+            'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+          amount: '14828735',
+          assets: [],
+          setMax: true,
         },
       ],
     },
@@ -650,6 +695,67 @@ export const exceptions = [
         address:
           'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
         amount: '4800000',
+        assets: [],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    options: { byron: false },
+    result: 'UTXO_BALANCE_INSUFFICIENT',
+  },
+  {
+    description: 'Computed max output amount is lower than minUtxoVal',
+    // utxos: 3.544443 ADA, outputs: 1 ADA + 1.443 ADA in change output + fee. This leaves less than 1 ADA which would be set as "max"
+    utxos: [
+      {
+        address:
+          'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
+        txHash:
+          'b5d1abd05c1eb0564a34c5daa4a71185aa11568c375ab7f946da889ebcb23a01',
+        outputIndex: 1,
+        amount: [
+          {
+            quantity: '2100000',
+            unit: 'lovelace',
+          },
+          {
+            quantity: '90',
+            unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+          },
+        ],
+      },
+      {
+        address:
+          'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
+        txHash:
+          'b5d1abd05c1eb0564a34c5daa4a71185aa11568c375ab7f946da889ebcb23a01',
+        outputIndex: 0,
+        amount: [
+          {
+            quantity: '1444443',
+            unit: 'lovelace',
+          },
+          {
+            quantity: '10',
+            unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+          },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        address:
+          'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
+        amount: undefined,
+        assets: [],
+        setMax: true,
+      },
+      {
+        address:
+          'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
+        amount: '1000000',
         assets: [],
         setMax: false,
       },

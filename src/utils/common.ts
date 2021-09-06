@@ -4,6 +4,7 @@ import {
   dummyStakingKeyHash,
   CertificateType,
   dummyAddress,
+  ERROR,
 } from '../constants';
 import {
   Certificate,
@@ -301,12 +302,13 @@ export const setMinUtxoValueForOutputs = (
       amount = output.amount;
     }
 
-    if (
-      output.setMax &&
-      output.assets.length > 0 &&
-      !output.assets[0].quantity
-    ) {
-      output.assets[0].quantity = '0';
+    if (output.setMax) {
+      // if setMax is active set initial value to 0
+      if (output.assets.length > 0) {
+        output.assets[0].quantity = '0';
+      } else {
+        amount = '0';
+      }
     }
 
     return {
@@ -455,4 +457,66 @@ export const getInitialUtxoSet = (
     used,
     remaining,
   };
+};
+
+export const setMaxOutput = (
+  maxOutput: UserOutput,
+  changeOutput: OutputCost | null,
+): {
+  maxOutput: UserOutput;
+  changeOutput: OutputCost | null;
+  newMaxAmount: CardanoWasm.BigNum;
+  maxOutputAsset: string;
+} => {
+  const maxOutputAsset = maxOutput.assets[0]?.unit ?? 'lovelace';
+  let newMaxAmount = bigNumFromStr('0');
+
+  if (maxOutputAsset === 'lovelace') {
+    // set maxOutput for ADA
+    if (changeOutput) {
+      newMaxAmount = bigNumFromStr(changeOutput?.output.amount ?? '0');
+      if (changeOutput.output.assets.length === 0) {
+        // we don't need the change output anymore
+        newMaxAmount = newMaxAmount.checked_add(changeOutput.outputFee);
+        changeOutput = null;
+      } else {
+        newMaxAmount = newMaxAmount.clamped_sub(changeOutput.minOutputAmount);
+        if (newMaxAmount.compare(bigNumFromStr('1000000')) < 0) {
+          // the amount would be less than min required ADA
+          throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
+        }
+        changeOutput.output.amount = changeOutput.minOutputAmount.to_str();
+      }
+    }
+    maxOutput.amount = newMaxAmount.to_str();
+  } else {
+    // set maxOutput for token
+    if (changeOutput) {
+      newMaxAmount = bigNumFromStr(
+        changeOutput.output.assets.find(a => a.unit === maxOutputAsset)
+          ?.quantity ?? '0',
+      );
+      // remove asset from the change output
+      // TODO: fee could also be lowered since there are less assets than before
+      changeOutput.output.assets = changeOutput.output.assets.filter(
+        a => a.unit !== maxOutputAsset,
+      );
+    }
+    maxOutput.assets[0].quantity = newMaxAmount.to_str();
+  }
+  return { maxOutput, newMaxAmount, changeOutput, maxOutputAsset };
+};
+
+export const getTotalUserOutputsAmount = (
+  outputs: UserOutput[],
+  deposit: number,
+): CardanoWasm.BigNum => {
+  let amount = outputs.reduce(
+    (acc, output) => acc.checked_add(bigNumFromStr(output.amount || '0')),
+    bigNumFromStr('0'),
+  );
+  if (deposit > 0) {
+    amount = amount.checked_add(bigNumFromStr(deposit.toString()));
+  }
+  return amount;
 };

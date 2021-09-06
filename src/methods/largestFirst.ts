@@ -23,6 +23,8 @@ import {
   getTxBuilder,
   assetsAmountSatisfied,
   getInitialUtxoSet,
+  setMaxOutput,
+  getTotalUserOutputsAmount,
 } from '../utils/common';
 
 export const largestFirst = (
@@ -93,64 +95,43 @@ export const largestFirst = (
     bigNumFromStr('0'),
   );
 
-  // Sum of all form outputs (ADA only) and withdrawals (without change output)
-  let totalUserOutputsAmount = preparedOutputs.reduce(
-    (acc, output) => acc.checked_add(bigNumFromStr(output.amount || '0')),
-    bigNumFromStr('0'),
-  );
-  if (deposit > 0) {
-    totalUserOutputsAmount = totalUserOutputsAmount.checked_add(
-      bigNumFromStr(deposit.toString()),
-    );
-  }
-
   // add external outputs fees to total
   totalFeesAmount = totalFeesAmount.checked_add(totalOutputsFee);
 
   let changeOutput: Output | null = null;
   let sufficientUtxos = false;
 
+  let totalUserOutputsAmount = getTotalUserOutputsAmount(
+    preparedOutputs,
+    deposit,
+  );
+
   while (!sufficientUtxos) {
     // Calculate change output
-    const preparedChangeOutput = prepareChangeOutput(
+    let preparedChangeOutput = prepareChangeOutput(
       txBuilder,
       usedUtxos,
       preparedOutputs,
       changeAddress,
       utxosTotalAmount,
-      totalUserOutputsAmount,
+      getTotalUserOutputsAmount(preparedOutputs, deposit),
       totalFeesAmount,
       !!options?.byron,
     );
 
-    // set amount for the max output
-    if (maxOutput && preparedChangeOutput) {
-      const maxOutputAsset = maxOutput.assets[0]?.unit ?? 'lovelace';
-      if (maxOutputAsset === 'lovelace') {
-        // set maxOutput for ADA
-        const newMaxOutputAmount = bigNumFromStr(
-          preparedChangeOutput?.output.amount ?? '0',
-        ).clamped_sub(preparedChangeOutput.minOutputAmount);
-        totalUserOutputsAmount =
-          totalUserOutputsAmount.checked_add(newMaxOutputAmount);
-        maxOutput.amount = newMaxOutputAmount.to_str();
-
-        preparedChangeOutput.output.amount =
-          preparedChangeOutput.minOutputAmount.to_str();
-      } else {
-        // set maxOutput for token
-        maxOutput.assets[0].quantity =
-          preparedChangeOutput.output.assets.find(
-            a => a.unit === maxOutputAsset,
-          )?.quantity ?? '0';
-
-        // remove asset from the change output
-        // TODO: fee could also be lowered since there are less assets than before
-        preparedChangeOutput.output.assets =
-          preparedChangeOutput.output.assets.filter(
-            a => a.unit !== maxOutputAsset,
-          );
-      }
+    if (maxOutput) {
+      // set amount for the max output
+      const { changeOutput: newChangeOutput } = setMaxOutput(
+        maxOutput,
+        preparedChangeOutput,
+      );
+      // change output may be completely removed if all ADA are consumed by max output
+      preparedChangeOutput = newChangeOutput;
+      // recalculate  total user outputs amount
+      totalUserOutputsAmount = getTotalUserOutputsAmount(
+        preparedOutputs,
+        deposit,
+      );
     }
 
     let requiredAmount = totalFeesAmount.checked_add(totalUserOutputsAmount);
@@ -177,6 +158,7 @@ export const largestFirst = (
     // );
 
     // console.log('addAnotherUtxo', addAnotherUtxo);
+
     if (
       utxosTotalAmount.compare(requiredAmount) >= 0 &&
       assetsAmountSatisfied(usedUtxos, preparedOutputs) &&
@@ -190,17 +172,17 @@ export const largestFirst = (
         // set change output
         changeOutput = preparedChangeOutput.output;
       } else {
-        const UnspendableChangeAmount = utxosTotalAmount.clamped_sub(
+        const unspendableChangeAmount = utxosTotalAmount.clamped_sub(
           totalFeesAmount.checked_add(totalUserOutputsAmount),
         );
+
         // console.warn(
         //   `Change output would be inefficient. Burning ${UnspendableChangeAmount.to_str()} as fee`,
         // );
         // Since we didn't add a change output we can burn its value + fee we would pay for it. That's equal to initial placeholderChangeOutputAmount
 
-        totalFeesAmount = totalFeesAmount.checked_add(UnspendableChangeAmount);
+        totalFeesAmount = totalFeesAmount.checked_add(unspendableChangeAmount);
       }
-
       sufficientUtxos = true;
     } else {
       const utxo = sortedUtxos.shift();
@@ -223,7 +205,7 @@ export const largestFirst = (
     throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
   }
 
-  const finalOutputs: Output[] = preparedOutputs;
+  const finalOutputs: Output[] = JSON.parse(JSON.stringify(preparedOutputs));
   if (changeOutput) {
     finalOutputs.push(changeOutput);
   }

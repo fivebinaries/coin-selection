@@ -1,14 +1,15 @@
 import { BigNum } from '@emurgo/cardano-serialization-lib-browser';
 import { CertificateType } from '../constants';
 
+export interface Asset {
+  unit: string;
+  quantity: string;
+}
 export interface Utxo {
   address: string; // address to which the utxo belongs to (necessary only for calculating correct cost of an input, maybe could be replaced by a dummy address)
   txHash: string;
   outputIndex: number;
-  amount: {
-    unit: string;
-    quantity: string;
-  }[];
+  amount: Asset[];
 }
 
 export interface ChangeAddress {
@@ -25,10 +26,7 @@ export interface CardanoCertificatePointer {
 
 export interface BaseOutput {
   setMax?: boolean;
-  assets: {
-    unit: string;
-    quantity: string;
-  }[];
+  assets: Asset[];
 }
 
 export interface ExternalOutput extends BaseOutput {
