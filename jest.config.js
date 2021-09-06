@@ -6,12 +6,16 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js'],
   collectCoverage: true,
   coveragePathIgnorePatterns: ['/node_modules/'],
-  testMatch: ['<rootDir>/test/tests/**/*.ts'],
+  testMatch: ['<rootDir>/test/tests/**/*test.ts'],
   coverageReporters: ['json-summary', 'lcov', 'text', 'text-summary'],
   collectCoverageFrom: ['<rootDir>/src/**/*.ts'],
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
   transform: {
     '^.+\\.(t|j)sx?$': ['@swc-node/jest'],
+  },
+  moduleNameMapper: {
+    // Workaround for an error "Cannot find module @emurgo/cardano-serialization-lib-browser"
+    "@emurgo/cardano-serialization-lib-browser": "@emurgo/cardano-serialization-lib-nodejs",
   },
   coverageThreshold: {
     // global: {

@@ -1,3 +1,4 @@
+import { BigNum } from '@emurgo/cardano-serialization-lib-browser';
 import { CertificateType } from '../constants';
 
 export interface Utxo {
@@ -23,22 +24,31 @@ export interface CardanoCertificatePointer {
 }
 
 export interface BaseOutput {
-  amount: string;
-  assets:
-    | {
-        unit: string;
-        quantity: string;
-      }[]
-    | undefined;
+  setMax?: boolean;
+  assets: {
+    unit: string;
+    quantity: string;
+  }[];
 }
 
 export interface ExternalOutput extends BaseOutput {
+  amount: string;
   address: string;
-  // addressParameters: never;
+  setMax?: false;
+  addressParameters?: never;
+}
+
+export interface ExternalOutputIncomplete extends BaseOutput {
+  amount?: string | undefined;
+  address?: string;
+  setMax: boolean;
+  addressParameters?: never;
 }
 
 export interface ChangeOutput extends BaseOutput {
   // address?: never;
+  amount: string;
+  address?: string;
   addressParameters: {
     addressType: CardanoAddressType;
     path: string | number[];
@@ -48,7 +58,15 @@ export interface ChangeOutput extends BaseOutput {
   };
 }
 
-export type Output = ExternalOutput | ChangeOutput;
+export type FinalOutput = ExternalOutput | ChangeOutput;
+export type UserOutput = ExternalOutput | ExternalOutputIncomplete;
+export type Output = FinalOutput | ExternalOutputIncomplete;
+
+export interface OutputCost {
+  output: Output;
+  outputFee: BigNum;
+  minOutputAmount: BigNum;
+}
 
 export enum CardanoAddressType {
   BASE = 0,
@@ -71,7 +89,28 @@ export interface CoinSelectionResult {
   totalSpent: string;
   deposit: string;
   withdrawal: string;
+  max?: string;
 }
+
+export type PrecomposedTransaction =
+  | {
+      type: 'final';
+      inputs: Utxo[];
+      outputs: FinalOutput[];
+      fee: string;
+      totalSpent: string;
+      deposit: string;
+      withdrawal: string;
+      max?: string;
+    }
+  | {
+      type: 'nonfinal';
+      fee: string;
+      totalSpent: string;
+      deposit: string;
+      withdrawal: string;
+      max?: string;
+    };
 
 export interface Withdrawal {
   stakingAddress?: string;
