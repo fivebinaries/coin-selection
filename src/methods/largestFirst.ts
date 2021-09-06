@@ -3,6 +3,7 @@ import {
   Certificate,
   ChangeAddress,
   CoinSelectionResult,
+  Options,
   Output,
   UserOutput,
   Utxo,
@@ -30,9 +31,9 @@ export const largestFirst = (
   changeAddress: ChangeAddress,
   certificates: Certificate[],
   withdrawals: Withdrawal[],
-  byron?: boolean,
+  options?: Options,
 ): CoinSelectionResult => {
-  const txBuilder = getTxBuilder();
+  const txBuilder = getTxBuilder(options?.feeParams?.a);
   let usedUtxos: Utxo[] = [];
 
   let sortedUtxos = sortUtxos(utxos);
@@ -119,7 +120,7 @@ export const largestFirst = (
       utxosTotalAmount,
       totalUserOutputsAmount,
       totalFeesAmount,
-      byron,
+      !!options?.byron,
     );
 
     // set amount for the max output

@@ -141,3 +141,8 @@ export type Certificate =
   | CertificateStakeRegistration
   | CertificateStakeDelegation
   | CertificateStakePoolRegistration;
+
+export interface Options {
+  byron?: boolean;
+  feeParams?: { a: string };
+}

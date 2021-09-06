@@ -54,7 +54,7 @@ export const nonFinalCompose = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '168009',
       fee: '168009',
@@ -74,7 +74,7 @@ export const nonFinalCompose = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '2168009',
       fee: '168009',
@@ -102,7 +102,7 @@ export const nonFinalCompose = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '2170869',
       fee: '170869',
@@ -127,7 +127,7 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '5000000',
       fee: '180000',
@@ -139,6 +139,46 @@ export const coinSelection = [
           amount: '4820000',
           assets: [],
           setMax: false,
+        },
+      ],
+    },
+  },
+  {
+    description: '1 ADA only utxo, 1 output + change (custom fee param A=0)',
+    utxos: [utxo1],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: '3000000',
+        assets: [],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    options: { byron: false, feeParams: { a: '0' } },
+    result: {
+      totalSpent: '3155381',
+      fee: '155381', // since we set cost per byte to 0, the tx cost wll be equal to fee param B
+      inputs: [utxo1],
+      outputs: [
+        {
+          address:
+            'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+          amount: '3000000',
+          assets: [],
+          setMax: false,
+        },
+        {
+          addressParameters: {
+            addressType: 0,
+            path: "m/1852'/1815'/0'/1/0",
+            stakingPath: "m/1852'/1815'/0'/2/0",
+          },
+          amount: '1844619',
+          assets: [],
         },
       ],
     },
@@ -158,7 +198,7 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       max: '8379628',
       totalSpent: '8555557', // plus 1444443 in change output = 10000000
@@ -190,7 +230,7 @@ export const coinSelection = [
     },
   },
   {
-    description: 'set max on ADA output, multipel outputs, assets returned',
+    description: 'set max on ADA output, multiple outputs, assets returned',
     utxos: [utxo1, utxo2],
     outputs: [
       {
@@ -211,7 +251,7 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       max: '7376768',
       totalSpent: '8555557', // plus 1444443 in change output = 10000000
@@ -269,7 +309,7 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       max: '1000',
       totalSpent: '1615972', // plus amount in change output = 5000000
@@ -307,7 +347,7 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [{ amount: '10000000', stakingPath: "m/1852'/1815'/0'/2/0" }],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '171265',
       fee: '171265',
@@ -336,7 +376,7 @@ export const coinSelection = [
       { amount: '10000000', stakingPath: "m/1852'/1815'/0'/2/0" },
       { amount: '10000000', stakingPath: "m/1852'/1815'/1'/2/0" },
     ],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '171265',
       fee: '171265',
@@ -366,7 +406,7 @@ export const coinSelection = [
       },
     ] as Certificate[],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '2166733',
       fee: '166733',
@@ -397,7 +437,7 @@ export const coinSelection = [
       },
     ] as Certificate[],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '172497',
       fee: '172497',
@@ -427,7 +467,7 @@ export const coinSelection = [
       },
     ] as Certificate[],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '171177',
       fee: '171177',
@@ -525,7 +565,7 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: {
       totalSpent: '3172761',
       fee: '172761',
@@ -598,7 +638,7 @@ export const exceptions = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
   {
@@ -617,7 +657,7 @@ export const exceptions = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
-    byron: false,
+    options: { byron: false },
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
 ];

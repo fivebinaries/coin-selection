@@ -11,7 +11,7 @@ describe('coinSelection - largestFirst', () => {
         f.changeAddress,
         f.certificates,
         f.withdrawals,
-        f.byron,
+        f.options,
       );
 
       expect(res).toMatchObject(f.result);
@@ -26,7 +26,7 @@ describe('coinSelection - largestFirst', () => {
         f.changeAddress,
         f.certificates,
         f.withdrawals,
-        f.byron,
+        f.options,
       );
 
       expect(res).toMatchObject(f.result);
@@ -75,7 +75,7 @@ describe('coinSelection - largestFirst', () => {
           f.changeAddress,
           f.certificates,
           f.withdrawals,
-          f.byron,
+          f.options,
         );
 
       expect(res).toThrowError(f.result);

@@ -108,16 +108,24 @@ export const getMinAdaRequired = (
   return CardanoWasm.min_ada_required(Value, minUtxoValue);
 };
 
-export const getAssetAmount = (obj: Pick<Utxo, 'amount'>, asset = 'lovelace') =>
-  obj.amount.find(a => a.unit === asset)?.quantity ?? '0';
+export const getAssetAmount = (
+  obj: Pick<Utxo, 'amount'>,
+  asset = 'lovelace',
+): string => obj.amount.find(a => a.unit === asset)?.quantity ?? '0';
 
-export const getSumAssetAmount = (utxos: Utxo[], asset = 'lovelace') =>
+export const getSumAssetAmount = (
+  utxos: Utxo[],
+  asset = 'lovelace',
+): CardanoWasm.BigNum =>
   utxos.reduce(
     (acc, utxo) => acc.checked_add(bigNumFromStr(getAssetAmount(utxo, asset))),
     bigNumFromStr('0'),
   );
 
-export const getSumOutputAmount = (outputs: Output[], asset = 'lovelace') =>
+export const getSumOutputAmount = (
+  outputs: Output[],
+  asset = 'lovelace',
+): CardanoWasm.BigNum =>
   outputs.reduce(
     (acc, output) =>
       acc.checked_add(
@@ -128,7 +136,7 @@ export const getSumOutputAmount = (outputs: Output[], asset = 'lovelace') =>
     bigNumFromStr('0'),
   );
 
-export const sortUtxos = (utxos: Utxo[], asset = 'lovelace') => {
+export const sortUtxos = (utxos: Utxo[], asset = 'lovelace'): Utxo[] => {
   const copy: Utxo[] = JSON.parse(JSON.stringify(utxos));
   return copy.sort((u1, u2) =>
     bigNumFromStr(getAssetAmount(u2, asset)).compare(
@@ -390,9 +398,9 @@ export const prepareChangeOutput = (
   return null;
 };
 
-export const getTxBuilder = () =>
+export const getTxBuilder = (a = '44'): CardanoWasm.TransactionBuilder =>
   CardanoWasm.TransactionBuilder.new(
-    CardanoWasm.LinearFee.new(bigNumFromStr('44'), bigNumFromStr('155381')),
+    CardanoWasm.LinearFee.new(bigNumFromStr(a), bigNumFromStr('155381')),
     bigNumFromStr('1000000'),
     // pool deposit
     bigNumFromStr('500000000'),
