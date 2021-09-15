@@ -4,6 +4,7 @@ import {
   Certificate,
   ChangeAddress,
   FinalOutput,
+  Options,
   PrecomposedTransaction,
   UserOutput,
   Utxo,
@@ -16,7 +17,7 @@ export const coinSelection = (
   changeAddress: ChangeAddress,
   certificates: Certificate[],
   withdrawals: Withdrawal[],
-  options?: { byron?: boolean },
+  options?: Options,
 ): PrecomposedTransaction => {
   if (utxos.length === 0) {
     throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
@@ -28,7 +29,7 @@ export const coinSelection = (
     changeAddress,
     certificates,
     withdrawals,
-    options?.byron,
+    options,
   );
   const incompleteOutputs = res.outputs.find(
     o => (!o.address && !o.addressParameters) || !o.amount,
