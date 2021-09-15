@@ -116,6 +116,7 @@ export const largestFirst = (
     deposit,
   );
 
+  let forceAnotherRound = false;
   while (!sufficientUtxos) {
     // Calculate change output
     let preparedChangeOutput = prepareChangeOutput(
@@ -126,7 +127,6 @@ export const largestFirst = (
       utxosTotalAmount,
       getTotalUserOutputsAmount(preparedOutputs, deposit),
       totalFeesAmount,
-      !!options?.byron,
     );
 
     if (maxOutput) {
@@ -173,7 +173,8 @@ export const largestFirst = (
     if (
       utxosTotalAmount.compare(requiredAmount) >= 0 &&
       assetsAmountSatisfied(usedUtxos, preparedOutputs) &&
-      usedUtxos.length > 0 // TODO: force at least 1 utxo, otherwise withdrawal tx is composed without utxo if rewards > tx cost
+      usedUtxos.length > 0 && // TODO: force at least 1 utxo, otherwise withdrawal tx is composed without utxo if rewards > tx cost
+      !forceAnotherRound
     ) {
       // we are done. we have enough utxos to cover fees + minUtxoValue for each output. now we can add the cost of the change output to total fees
       if (preparedChangeOutput) {
@@ -197,6 +198,12 @@ export const largestFirst = (
         const unspendableChangeAmount = utxosTotalAmount.clamped_sub(
           totalFeesAmount.checked_add(totalUserOutputsAmount),
         );
+        if (sortedUtxos.length > 0) {
+          // In current iteration we don't have enough utxo to meet min utxo value for an output,
+          // but some utxos are still available, force adding another one in order to create a change output
+          forceAnotherRound = true;
+          continue;
+        }
 
         // console.warn(
         //   `Change output would be inefficient. Burning ${UnspendableChangeAmount.to_str()} as fee`,
@@ -222,6 +229,7 @@ export const largestFirst = (
       utxosTotalAmount = utxosTotalAmount.checked_add(
         bigNumFromStr(getAssetAmount(utxo)),
       );
+      forceAnotherRound = false;
     }
     // END LOOP
   }

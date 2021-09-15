@@ -1,5 +1,10 @@
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
-import { CertificateType, dummyAddress, ERROR } from '../constants';
+import {
+  CertificateType,
+  dummyAddress,
+  ERROR,
+  MIN_UTXO_VALUE,
+} from '../constants';
 import {
   Certificate,
   Output,
@@ -121,8 +126,8 @@ export const multiAssetToArray = (
 
 export const getMinAdaRequired = (
   multiAsset: CardanoWasm.MultiAsset | null,
-  minUtxoValue = bigNumFromStr('1000000'),
 ): CardanoWasm.BigNum => {
+  const minUtxoValue = bigNumFromStr(MIN_UTXO_VALUE);
   if (!multiAsset) return minUtxoValue;
   const Value = CardanoWasm.Value.new(minUtxoValue);
   Value.set_multiasset(multiAsset);
@@ -208,9 +213,8 @@ export const getInputCost = (
 
 export const buildTxOutput = (
   output: Output,
-  _byron?: boolean,
-  minUtxoValue = bigNumFromStr('1000000'),
 ): CardanoWasm.TransactionOutput => {
+  const minUtxoValue = bigNumFromStr(MIN_UTXO_VALUE);
   // this will set required minUtxoValue even if output.amount === 0
   const outputAmount =
     output.amount && minUtxoValue.compare(bigNumFromStr(output.amount)) < 0
@@ -221,7 +225,7 @@ export const buildTxOutput = (
 
   if (output.assets.length > 0) {
     const multiAsset = buildMultiAsset(output.assets);
-    const minAdaRequired = getMinAdaRequired(multiAsset, minUtxoValue);
+    const minAdaRequired = getMinAdaRequired(multiAsset);
 
     if (outputAmount.compare(minAdaRequired) < 0) {
       outputValue = CardanoWasm.Value.new(minAdaRequired);
@@ -239,8 +243,8 @@ export const buildTxOutput = (
 export const getOutputCost = (
   txBuilder: CardanoWasm.TransactionBuilder,
   output: Output,
-  minUtxoValue = bigNumFromStr('1000000'),
 ): OutputCost => {
+  const minUtxoValue = bigNumFromStr(MIN_UTXO_VALUE);
   const txOutput = buildTxOutput(output);
   const outputFee = txBuilder.fee_for_output(txOutput);
   return {
@@ -374,7 +378,6 @@ export const prepareChangeOutput = (
   utxosTotalAmount: CardanoWasm.BigNum,
   totalOutputAmount: CardanoWasm.BigNum,
   totalFeesAmount: CardanoWasm.BigNum,
-  _byron?: boolean,
 ): OutputCost | null => {
   // change output amount should be lowered by the cost of the change output (fee + minUtxoVal)
   // The cost will be subtracted once we calculate it.
@@ -448,7 +451,7 @@ export const prepareChangeOutput = (
 export const getTxBuilder = (a = '44'): CardanoWasm.TransactionBuilder =>
   CardanoWasm.TransactionBuilder.new(
     CardanoWasm.LinearFee.new(bigNumFromStr(a), bigNumFromStr('155381')),
-    bigNumFromStr('1000000'),
+    bigNumFromStr(MIN_UTXO_VALUE),
     // pool deposit
     bigNumFromStr('500000000'),
     // key deposit
