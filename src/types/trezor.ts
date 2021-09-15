@@ -41,3 +41,15 @@ export type CardanoOutput =
       amount: string;
       tokenBundle?: CardanoAssetGroup[];
     };
+
+export enum CardanoTxWitnessType {
+  BYRON_WITNESS = 0,
+  SHELLEY_WITNESS = 1,
+}
+
+export type CardanoSignedTxWitness = {
+  type: CardanoTxWitnessType;
+  pubKey: string;
+  signature: string;
+  chainCode?: string;
+};

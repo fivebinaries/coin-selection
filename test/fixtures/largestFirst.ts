@@ -67,6 +67,8 @@ export const nonFinalCompose = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '168009',
@@ -87,6 +89,8 @@ export const nonFinalCompose = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '2168009',
@@ -115,6 +119,8 @@ export const nonFinalCompose = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '2170869',
@@ -124,7 +130,7 @@ export const nonFinalCompose = [
 ];
 
 export const coinSelection = [
-  // TODO set max token, without amount
+  //   // TODO set max token, without amount
   {
     description: '1 ADA only utxo, 1 output, no change (dust burned as fee)',
     utxos: [utxo1],
@@ -140,6 +146,8 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '5000000',
@@ -171,6 +179,8 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false, feeParams: { a: '0' } },
     result: {
       totalSpent: '3155381',
@@ -211,12 +221,14 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       max: '14828735',
       totalSpent: '15000000',
       fee: '171265',
-      inputs: [utxo1, utxo3],
+      inputs: [utxo3, utxo1],
       outputs: [
         {
           address:
@@ -243,6 +255,8 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       max: '8379628',
@@ -296,6 +310,8 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       max: '7376768',
@@ -354,6 +370,8 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       max: '1000',
@@ -391,7 +409,16 @@ export const coinSelection = [
     outputs: [],
     changeAddress: changeAddress,
     certificates: [],
-    withdrawals: [{ amount: '10000000', stakingPath: "m/1852'/1815'/0'/2/0" }],
+    withdrawals: [
+      {
+        amount: '10000000',
+        stakingPath: "m/1852'/1815'/0'/2/0",
+        stakeAddress:
+          'stake1u8yk3dcuj8yylwvnzz953yups6mmuvt0vtjmxl2gmgceqjqz2yfd2',
+      },
+    ],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '171265',
@@ -418,9 +445,21 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [
-      { amount: '10000000', stakingPath: "m/1852'/1815'/0'/2/0" },
-      { amount: '10000000', stakingPath: "m/1852'/1815'/1'/2/0" },
+      {
+        amount: '10000000',
+        stakingPath: "m/1852'/1815'/0'/2/0",
+        stakeAddress:
+          'stake1u8yk3dcuj8yylwvnzz953yups6mmuvt0vtjmxl2gmgceqjqz2yfd2',
+      },
+      {
+        amount: '10000000',
+        stakingPath: "m/1852'/1815'/1'/2/0",
+        stakeAddress:
+          'stake1u8yk3dcuj8yylwvnzz953yups6mmuvt0vtjmxl2gmgceqjqz2yfd2',
+      },
     ],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '171265',
@@ -451,6 +490,8 @@ export const coinSelection = [
       },
     ] as Certificate[],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '2166733',
@@ -482,6 +523,8 @@ export const coinSelection = [
       },
     ] as Certificate[],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '172497',
@@ -512,6 +555,8 @@ export const coinSelection = [
       },
     ] as Certificate[],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '171177',
@@ -610,6 +655,8 @@ export const coinSelection = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
       totalSpent: '3172761',
@@ -683,6 +730,8 @@ export const exceptions = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
@@ -702,6 +751,8 @@ export const exceptions = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
@@ -763,6 +814,8 @@ export const exceptions = [
     changeAddress: changeAddress,
     certificates: [],
     withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
