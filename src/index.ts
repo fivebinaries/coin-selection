@@ -17,6 +17,7 @@ export const coinSelection = (
   changeAddress: ChangeAddress,
   certificates: Certificate[],
   withdrawals: Withdrawal[],
+  accountPubKey: string,
   options?: Options,
 ): PrecomposedTransaction => {
   if (utxos.length === 0) {
@@ -29,6 +30,7 @@ export const coinSelection = (
     changeAddress,
     certificates,
     withdrawals,
+    accountPubKey,
     options,
   );
   const incompleteOutputs = res.outputs.find(
@@ -49,5 +51,5 @@ export const coinSelection = (
   }
 };
 
-export * as trezorUtils from './utils/trezor/transformations';
+export * as trezorUtils from './utils/trezor';
 export * as types from './types/types';

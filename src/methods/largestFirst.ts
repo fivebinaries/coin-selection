@@ -1,4 +1,5 @@
 import { ERROR } from '../constants';
+import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
   Certificate,
   ChangeAddress,
@@ -25,6 +26,10 @@ import {
   getInitialUtxoSet,
   setMaxOutput,
   getTotalUserOutputsAmount,
+  getAddressType,
+  multiAssetToArray,
+  buildTxInput,
+  buildTxOutput,
 } from '../utils/common';
 
 export const largestFirst = (
@@ -33,6 +38,7 @@ export const largestFirst = (
   changeAddress: ChangeAddress,
   certificates: Certificate[],
   withdrawals: Withdrawal[],
+  accountPubKey: string,
   options?: Options,
 ): CoinSelectionResult => {
   const txBuilder = getTxBuilder(options?.feeParams?.a);
@@ -40,8 +46,12 @@ export const largestFirst = (
 
   let sortedUtxos = sortUtxos(utxos);
 
+  const accountKey = CardanoWasm.Bip32PublicKey.from_bytes(
+    Buffer.from(accountPubKey, 'hex'),
+  );
+
   // add withdrawals and certs to correctly set a fee
-  const preparedCertificates = prepareCertificates(certificates);
+  const preparedCertificates = prepareCertificates(certificates, accountKey);
   const preparedWithdrawals = prepareWithdrawals(withdrawals);
 
   if (preparedCertificates.len() > 0) {
@@ -72,7 +82,7 @@ export const largestFirst = (
 
   // set initial utxos set for setMax functionality
   const maxOutput = preparedOutputs[outputs.findIndex(o => !!o.setMax)];
-  const { used, remaining } = getInitialUtxoSet(utxos, maxOutput);
+  const { used, remaining } = getInitialUtxoSet(sortedUtxos, maxOutput);
   usedUtxos = used;
   sortedUtxos = remaining;
 
@@ -106,6 +116,7 @@ export const largestFirst = (
     deposit,
   );
 
+  let forceAnotherRound = false;
   while (!sufficientUtxos) {
     // Calculate change output
     let preparedChangeOutput = prepareChangeOutput(
@@ -116,7 +127,6 @@ export const largestFirst = (
       utxosTotalAmount,
       getTotalUserOutputsAmount(preparedOutputs, deposit),
       totalFeesAmount,
-      !!options?.byron,
     );
 
     if (maxOutput) {
@@ -127,6 +137,7 @@ export const largestFirst = (
       );
       // change output may be completely removed if all ADA are consumed by max output
       preparedChangeOutput = newChangeOutput;
+
       // recalculate  total user outputs amount
       totalUserOutputsAmount = getTotalUserOutputsAmount(
         preparedOutputs,
@@ -137,7 +148,7 @@ export const largestFirst = (
     let requiredAmount = totalFeesAmount.checked_add(totalUserOutputsAmount);
     if (preparedChangeOutput) {
       requiredAmount = requiredAmount
-        .checked_add(bigNumFromStr(preparedChangeOutput.output.amount || '0'))
+        .checked_add(preparedChangeOutput.output.amount().coin())
         .checked_add(preparedChangeOutput.outputFee);
     }
 
@@ -162,7 +173,8 @@ export const largestFirst = (
     if (
       utxosTotalAmount.compare(requiredAmount) >= 0 &&
       assetsAmountSatisfied(usedUtxos, preparedOutputs) &&
-      usedUtxos.length > 0 // TODO: force at least 1 utxo, otherwise withdrawal tx is composed without utxo if rewards > tx cost
+      usedUtxos.length > 0 && // TODO: force at least 1 utxo, otherwise withdrawal tx is composed without utxo if rewards > tx cost
+      !forceAnotherRound
     ) {
       // we are done. we have enough utxos to cover fees + minUtxoValue for each output. now we can add the cost of the change output to total fees
       if (preparedChangeOutput) {
@@ -170,11 +182,28 @@ export const largestFirst = (
           preparedChangeOutput.outputFee,
         );
         // set change output
-        changeOutput = preparedChangeOutput.output;
+        // TODO: this is trezor specific
+        changeOutput = {
+          amount: preparedChangeOutput.output.amount().coin().to_str(),
+          addressParameters: {
+            path: changeAddress.path,
+            addressType: getAddressType(options?.byron),
+            stakingPath: changeAddress.stakingPath,
+          },
+          assets: multiAssetToArray(
+            preparedChangeOutput.output.amount().multiasset(),
+          ),
+        };
       } else {
         const unspendableChangeAmount = utxosTotalAmount.clamped_sub(
           totalFeesAmount.checked_add(totalUserOutputsAmount),
         );
+        if (sortedUtxos.length > 0) {
+          // In current iteration we don't have enough utxo to meet min utxo value for an output,
+          // but some utxos are still available, force adding another one in order to create a change output
+          forceAnotherRound = true;
+          continue;
+        }
 
         // console.warn(
         //   `Change output would be inefficient. Burning ${UnspendableChangeAmount.to_str()} as fee`,
@@ -190,13 +219,17 @@ export const largestFirst = (
 
       usedUtxos.push(utxo);
 
-      const { inputFee } = getInputCost(txBuilder, utxo);
-      // txBuilder.add_input(utxo.address, input, inputValue);
+      const { input, address, amount } = buildTxInput(utxo);
+      const inputFee = txBuilder.fee_for_input(address, input, amount);
+      txBuilder.add_input(address, input, amount);
+
+      // const { inputFee } = getInputCost(txBuilder, utxo);
       // add input fee to total
       totalFeesAmount = totalFeesAmount.checked_add(inputFee);
       utxosTotalAmount = utxosTotalAmount.checked_add(
         bigNumFromStr(getAssetAmount(utxo)),
       );
+      forceAnotherRound = false;
     }
     // END LOOP
   }
@@ -205,10 +238,28 @@ export const largestFirst = (
     throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
   }
 
+  preparedOutputs.forEach(output => {
+    const txOutput = buildTxOutput(output);
+    txBuilder.add_output(txOutput);
+  });
+
   const finalOutputs: Output[] = JSON.parse(JSON.stringify(preparedOutputs));
   if (changeOutput) {
     finalOutputs.push(changeOutput);
+    txBuilder.add_output(
+      buildTxOutput({
+        ...changeOutput,
+        address: changeAddress.address,
+      }),
+    );
   }
+
+  txBuilder.set_fee(totalFeesAmount);
+  const txBody = txBuilder.build();
+  const txHash = Buffer.from(
+    CardanoWasm.hash_transaction(txBody).to_bytes(),
+  ).toString('hex');
+  const txBodyHex = Buffer.from(txBody.to_bytes()).toString('hex');
 
   const totalSpent = totalUserOutputsAmount.checked_add(totalFeesAmount);
   // console.log('FINAL RESULT START==========');
@@ -220,7 +271,6 @@ export const largestFirst = (
   // console.log('deposit', deposit.to_str());
   // console.log('withdrawal', totalWithdrawal.to_str());
   // console.log('FINAL RESULT END');
-  txBuilder.free();
 
   let max;
   if (maxOutput) {
@@ -229,6 +279,7 @@ export const largestFirst = (
         ? maxOutput.assets[0].quantity
         : maxOutput.amount;
   }
+
   return {
     inputs: usedUtxos,
     outputs: finalOutputs,
@@ -236,6 +287,7 @@ export const largestFirst = (
     totalSpent: totalSpent.to_str(), //
     deposit: deposit.toString(),
     withdrawal: totalWithdrawal.to_str(),
+    tx: { body: txBodyHex, hash: txHash },
     max,
   };
 };

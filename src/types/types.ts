@@ -1,3 +1,4 @@
+import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import { BigNum } from '@emurgo/cardano-serialization-lib-browser';
 import { CertificateType } from '../constants';
 
@@ -61,7 +62,7 @@ export type UserOutput = ExternalOutput | ExternalOutputIncomplete;
 export type Output = FinalOutput | ExternalOutputIncomplete;
 
 export interface OutputCost {
-  output: Output;
+  output: CardanoWasm.TransactionOutput;
   outputFee: BigNum;
   minOutputAmount: BigNum;
 }
@@ -81,6 +82,7 @@ export enum CardanoAddressType {
 }
 
 export interface CoinSelectionResult {
+  tx: { body: string; hash: string };
   inputs: Utxo[];
   outputs: Output[];
   fee: string;
@@ -91,27 +93,18 @@ export interface CoinSelectionResult {
 }
 
 export type PrecomposedTransaction =
-  | {
+  | ({
       type: 'final';
-      inputs: Utxo[];
-      outputs: FinalOutput[];
-      fee: string;
-      totalSpent: string;
-      deposit: string;
-      withdrawal: string;
-      max?: string;
-    }
-  | {
+    } & CoinSelectionResult)
+  | ({
       type: 'nonfinal';
-      fee: string;
-      totalSpent: string;
-      deposit: string;
-      withdrawal: string;
-      max?: string;
-    };
+    } & Pick<
+      CoinSelectionResult,
+      'fee' | 'totalSpent' | 'deposit' | 'withdrawal' | 'max'
+    >);
 
 export interface Withdrawal {
-  stakingAddress?: string;
+  stakeAddress: string;
   amount: string;
 }
 

@@ -11,6 +11,7 @@ describe('coinSelection - largestFirst', () => {
         f.changeAddress,
         f.certificates,
         f.withdrawals,
+        f.accountPubKey,
         f.options,
       );
 
@@ -26,6 +27,7 @@ describe('coinSelection - largestFirst', () => {
         f.changeAddress,
         f.certificates,
         f.withdrawals,
+        f.accountPubKey,
         f.options,
       );
 
@@ -75,6 +77,7 @@ describe('coinSelection - largestFirst', () => {
           f.changeAddress,
           f.certificates,
           f.withdrawals,
+          f.accountPubKey,
           f.options,
         );
 
