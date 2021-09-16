@@ -2,7 +2,7 @@ import { ERROR } from '../constants';
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
   Certificate,
-  ChangeAddress,
+  ChangeOutput,
   CoinSelectionResult,
   Options,
   Output,
@@ -26,16 +26,16 @@ import {
   getInitialUtxoSet,
   setMaxOutput,
   getTotalUserOutputsAmount,
-  getAddressType,
   multiAssetToArray,
   buildTxInput,
   buildTxOutput,
 } from '../utils/common';
+import { CoinSelectionError } from '../utils/errors';
 
 export const largestFirst = (
   utxos: Utxo[],
   outputs: UserOutput[],
-  changeAddress: ChangeAddress,
+  changeAddress: string,
   certificates: Certificate[],
   withdrawals: Withdrawal[],
   accountPubKey: string,
@@ -108,7 +108,7 @@ export const largestFirst = (
   // add external outputs fees to total
   totalFeesAmount = totalFeesAmount.checked_add(totalOutputsFee);
 
-  let changeOutput: Output | null = null;
+  let changeOutput: ChangeOutput | null = null;
   let sufficientUtxos = false;
 
   let totalUserOutputsAmount = getTotalUserOutputsAmount(
@@ -182,14 +182,10 @@ export const largestFirst = (
           preparedChangeOutput.outputFee,
         );
         // set change output
-        // TODO: this is trezor specific
         changeOutput = {
+          isChange: true,
           amount: preparedChangeOutput.output.amount().coin().to_str(),
-          addressParameters: {
-            path: changeAddress.path,
-            addressType: getAddressType(options?.byron),
-            stakingPath: changeAddress.stakingPath,
-          },
+          address: changeAddress,
           assets: multiAssetToArray(
             preparedChangeOutput.output.amount().multiasset(),
           ),
@@ -235,7 +231,7 @@ export const largestFirst = (
   }
 
   if (!sufficientUtxos) {
-    throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
+    throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
   }
 
   preparedOutputs.forEach(output => {
@@ -246,12 +242,7 @@ export const largestFirst = (
   const finalOutputs: Output[] = JSON.parse(JSON.stringify(preparedOutputs));
   if (changeOutput) {
     finalOutputs.push(changeOutput);
-    txBuilder.add_output(
-      buildTxOutput({
-        ...changeOutput,
-        address: changeAddress.address,
-      }),
-    );
+    txBuilder.add_output(buildTxOutput(changeOutput));
   }
 
   txBuilder.set_fee(totalFeesAmount);

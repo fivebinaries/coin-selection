@@ -81,7 +81,7 @@ describe('coinSelection - largestFirst', () => {
           f.options,
         );
 
-      expect(res).toThrowError(f.result);
+      expect(res).toThrowError(expect.objectContaining({ code: f.result }));
     });
   });
 });

@@ -60,7 +60,6 @@ export const signTransaction = (
   }
 
   const transaction = CardanoWasm.Transaction.new(txBody, witnesses);
-
   const serializedTx = Buffer.from(transaction.to_bytes()).toString('hex');
   return serializedTx;
 };

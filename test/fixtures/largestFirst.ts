@@ -1,4 +1,3 @@
-import { dummyStakingKeyHash } from '../../src/constants';
 import { Certificate, Utxo } from '../../src/types/types';
 
 const prepareUtxo = (utxo: Utxo, update: Partial<Utxo>) => {
@@ -8,12 +7,8 @@ const prepareUtxo = (utxo: Utxo, update: Partial<Utxo>) => {
   };
 };
 
-const changeAddress = {
-  address:
-    'addr1q8u2f05rprqjhygz22m06mhy4xrnqvqqpyuzhmxqfxnwvxz8d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90s22tk0f',
-  path: "m/1852'/1815'/0'/1/0",
-  stakingPath: "m/1852'/1815'/0'/2/0",
-};
+const changeAddress =
+  'addr1q8u2f05rprqjhygz22m06mhy4xrnqvqqpyuzhmxqfxnwvxz8d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90s22tk0f';
 
 const utxo1 = Object.freeze({
   address:
@@ -225,11 +220,8 @@ export const coinSelection = [
           setMax: false,
         },
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '1830407',
           assets: [],
         },
@@ -267,11 +259,8 @@ export const coinSelection = [
           setMax: false,
         },
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '1844619',
           assets: [],
         },
@@ -344,11 +333,8 @@ export const coinSelection = [
           setMax: true,
         },
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '1444443',
           assets: [
             {
@@ -406,11 +392,8 @@ export const coinSelection = [
           setMax: true,
         },
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '1444443',
           assets: [
             {
@@ -464,11 +447,8 @@ export const coinSelection = [
           setMax: true,
         },
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '3384028',
           assets: [],
         },
@@ -498,11 +478,8 @@ export const coinSelection = [
       inputs: [utxo1],
       outputs: [
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '14828735',
           assets: [],
         },
@@ -539,11 +516,8 @@ export const coinSelection = [
       inputs: [utxo1],
       outputs: [
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '24828735',
           assets: [],
         },
@@ -558,7 +532,6 @@ export const coinSelection = [
     certificates: [
       {
         type: 0,
-        stakingKeyHash: dummyStakingKeyHash,
       },
     ] as Certificate[],
     withdrawals: [],
@@ -571,11 +544,8 @@ export const coinSelection = [
       inputs: [utxo1],
       outputs: [
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '2833267',
           assets: [],
         },
@@ -590,7 +560,7 @@ export const coinSelection = [
     certificates: [
       {
         type: 2 as const,
-        stakingKeyHash: dummyStakingKeyHash,
+
         pool: '0f292fcaa02b8b2f9b3c8f9fd8e0bb21abedb692a6d5058df3ef2735',
       },
     ] as Certificate[],
@@ -604,11 +574,8 @@ export const coinSelection = [
       inputs: [utxo1],
       outputs: [
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '4827503',
           assets: [],
         },
@@ -623,7 +590,6 @@ export const coinSelection = [
     certificates: [
       {
         type: 1,
-        stakingKeyHash: dummyStakingKeyHash,
       },
     ] as Certificate[],
     withdrawals: [],
@@ -636,11 +602,8 @@ export const coinSelection = [
       inputs: [utxo1],
       outputs: [
         {
-          addressParameters: {
-            addressType: 0,
-            path: "m/1852'/1815'/0'/1/0",
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           amount: '6828823',
           assets: [],
         },
@@ -769,11 +732,8 @@ export const coinSelection = [
         },
         {
           amount: '3828000545',
-          addressParameters: {
-            path: "m/1852'/1815'/0'/1/0",
-            addressType: 0,
-            stakingPath: "m/1852'/1815'/0'/2/0",
-          },
+          isChange: true,
+          address: changeAddress,
           assets: [
             {
               unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',

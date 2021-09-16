@@ -13,12 +13,6 @@ export interface Utxo {
   amount: Asset[];
 }
 
-export interface ChangeAddress {
-  address: string;
-  path: string;
-  stakingPath: string;
-}
-
 export interface CardanoCertificatePointer {
   blockIndex: number;
   txIndex: number;
@@ -27,6 +21,7 @@ export interface CardanoCertificatePointer {
 
 export interface BaseOutput {
   setMax?: boolean;
+  isChange?: boolean;
   assets: Asset[];
 }
 
@@ -34,27 +29,18 @@ export interface ExternalOutput extends BaseOutput {
   amount: string;
   address: string;
   setMax?: false;
-  addressParameters?: never;
 }
 
 export interface ExternalOutputIncomplete extends BaseOutput {
   amount?: string | undefined;
   address?: string;
   setMax: boolean;
-  addressParameters?: never;
 }
 
 export interface ChangeOutput extends BaseOutput {
-  // address?: never;
   amount: string;
-  address?: string;
-  addressParameters: {
-    addressType: CardanoAddressType;
-    path: string | number[];
-    stakingPath?: string | number[];
-    stakingKeyHash?: string;
-    certificatePointer?: CardanoCertificatePointer;
-  };
+  address: string;
+  isChange: true;
 }
 
 export type FinalOutput = ExternalOutput | ChangeOutput;
@@ -95,7 +81,8 @@ export interface CoinSelectionResult {
 export type PrecomposedTransaction =
   | ({
       type: 'final';
-    } & CoinSelectionResult)
+      outputs: FinalOutput[];
+    } & Omit<CoinSelectionResult, 'outputs'>)
   | ({
       type: 'nonfinal';
     } & Pick<
