@@ -451,9 +451,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@five-binaries/coin-selection@workspace:.":
+"@fivebinaries/coin-selection@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@five-binaries/coin-selection@workspace:."
+  resolution: "@fivebinaries/coin-selection@workspace:."
   dependencies:
     "@emurgo/cardano-serialization-lib-browser": ^8.1.0
     "@emurgo/cardano-serialization-lib-nodejs": ^8.1.0
