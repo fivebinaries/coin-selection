@@ -44,36 +44,49 @@ export const transformToTokenBundle = (assets: Asset[]) => {
   return assetsByPolicy;
 };
 
-export const transformToTrezorInput = (
-  utxo: Utxo,
-  path: string,
-): CardanoInput => ({
-  path: path,
-  prev_hash: utxo.txHash,
-  prev_index: utxo.outputIndex,
-});
+export const transformToTrezorInputs = (
+  utxos: Utxo[],
+  trezorUtxos: { txid: string; vout: number; path: string }[],
+): CardanoInput[] => {
+  return utxos.map(utxo => {
+    const utxoWithPath = trezorUtxos.find(
+      u => u.txid === utxo.txHash && u.vout === utxo.outputIndex,
+    );
+    // shouldn't happen since utxos should be subset of trezorUtxos (with different shape/fields)
+    if (!utxoWithPath)
+      throw Error(`Cannot transform utxo ${utxo.txHash}:${utxo.outputIndex}`);
 
-export const transformToTrezorOutput = (
-  output: FinalOutput,
+    return {
+      path: utxoWithPath.path,
+      prev_hash: utxo.txHash,
+      prev_index: utxo.outputIndex,
+    };
+  });
+};
+
+export const transformToTrezorOutputs = (
+  outputs: FinalOutput[],
   changeAddressParameters: CardanoAddressParameters,
-): CardanoOutput => {
-  let params:
-    | { address: string }
-    | { addressParameters: CardanoAddressParameters };
+): CardanoOutput[] => {
+  return outputs.map(output => {
+    let params:
+      | { address: string }
+      | { addressParameters: CardanoAddressParameters };
 
-  if (output.isChange) {
-    params = {
-      addressParameters: changeAddressParameters,
-    };
-  } else {
-    params = {
-      address: output.address,
-    };
-  }
+    if (output.isChange) {
+      params = {
+        addressParameters: changeAddressParameters,
+      };
+    } else {
+      params = {
+        address: output.address,
+      };
+    }
 
-  return {
-    ...params,
-    amount: output.amount,
-    tokenBundle: output.assets ? transformToTokenBundle(output.assets) : [],
-  };
+    return {
+      ...params,
+      amount: output.amount,
+      tokenBundle: transformToTokenBundle(output.assets),
+    };
+  });
 };
