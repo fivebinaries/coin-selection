@@ -10,11 +10,11 @@ import {
   Output,
   Utxo,
   Withdrawal,
-  ChangeAddress,
   OutputCost,
   UserOutput,
   Asset,
 } from '../types/types';
+import { CoinSelectionError } from './errors';
 
 export const CARDANO = {
   PROTOCOL_MAGICS: {
@@ -56,11 +56,6 @@ export const getNetworkId = (
   | typeof CARDANO.NETWORK_IDS['mainnet']
   | typeof CARDANO.NETWORK_IDS['testnet'] =>
   testnet ? CARDANO.NETWORK_IDS.testnet : CARDANO.NETWORK_IDS.mainnet;
-
-export const getAddressType = (
-  byron?: boolean,
-): typeof CARDANO.ADDRESS_TYPE.Byron | typeof CARDANO.ADDRESS_TYPE.Base =>
-  byron ? CARDANO.ADDRESS_TYPE.Byron : CARDANO.ADDRESS_TYPE.Base;
 
 export const parseAsset = (
   hex: string,
@@ -315,7 +310,7 @@ export const prepareCertificates = (
         ),
       );
     } else {
-      throw Error(ERROR.UNSUPPORTED_CERTIFICATE_TYPE.code);
+      throw new CoinSelectionError(ERROR.UNSUPPORTED_CERTIFICATE_TYPE);
     }
   });
   return preparedCertificates;
@@ -374,7 +369,7 @@ export const prepareChangeOutput = (
   txBuilder: CardanoWasm.TransactionBuilder,
   usedUtxos: Utxo[],
   preparedOutputs: Output[],
-  changeAddress: ChangeAddress,
+  changeAddress: string,
   utxosTotalAmount: CardanoWasm.BigNum,
   totalOutputAmount: CardanoWasm.BigNum,
   totalFeesAmount: CardanoWasm.BigNum,
@@ -406,7 +401,7 @@ export const prepareChangeOutput = (
     .filter(asset => asset.quantity !== '0');
 
   const changeOutputCost = getOutputCost(txBuilder, {
-    address: changeAddress.address,
+    address: changeAddress,
     amount: placeholderChangeOutputAmount.to_str(),
     assets: changeOutputAssets,
   });
@@ -433,7 +428,7 @@ export const prepareChangeOutput = (
     // TODO: changeOutputCost.output.amount().set_coin(changeOutputAmount)?
     const txOutput = buildTxOutput({
       amount: changeOutputAmount.to_str(),
-      address: changeAddress.address,
+      address: changeAddress,
       assets: changeOutputAssets,
     });
 
@@ -537,7 +532,7 @@ export const setMaxOutput = (
         newMaxAmount = newMaxAmount.clamped_sub(changeOutput.minOutputAmount);
         if (newMaxAmount.compare(bigNumFromStr('1000000')) < 0) {
           // the amount would be less than min required ADA
-          throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
+          throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
         }
         changeOutputAmount = changeOutput.minOutputAmount;
       }

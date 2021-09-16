@@ -17,6 +17,6 @@ export const ERROR = {
     code: 'UNSUPPORTED_CERTIFICATE_TYPE',
     message: 'Unsupported certificate type',
   },
-};
+} as const;
 
 export const MIN_UTXO_VALUE = '1000000';

@@ -3,16 +3,14 @@ import {
   CardanoInput,
   CardanoOutput,
 } from '../../types/trezor';
-import { FinalOutput, Utxo } from '../../types/types';
+import { Asset, FinalOutput, Utxo } from '../../types/types';
 import { parseAsset } from '../common';
 
 interface AssetInPolicy {
   assetNameBytes: string;
   amount: string;
 }
-export const transformToTokenBundle = (
-  assets: { unit: string; quantity: string }[],
-) => {
+export const transformToTokenBundle = (assets: Asset[]) => {
   // prepare token bundle used in trezor output
   const uniquePolicies: string[] = [];
   assets.forEach(asset => {
@@ -55,14 +53,17 @@ export const transformToTrezorInput = (
   prev_index: utxo.outputIndex,
 });
 
-export const transformToTrezorOutput = (output: FinalOutput): CardanoOutput => {
+export const transformToTrezorOutput = (
+  output: FinalOutput,
+  changeAddressParameters: CardanoAddressParameters,
+): CardanoOutput => {
   let params:
     | { address: string }
     | { addressParameters: CardanoAddressParameters };
 
-  if (output.addressParameters) {
+  if (output.isChange) {
     params = {
-      addressParameters: output.addressParameters,
+      addressParameters: changeAddressParameters,
     };
   } else {
     params = {

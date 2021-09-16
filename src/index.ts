@@ -1,8 +1,8 @@
 import { ERROR } from './constants';
 import { largestFirst } from './methods/largestFirst';
+import { CoinSelectionError } from './utils/errors';
 import {
   Certificate,
-  ChangeAddress,
   FinalOutput,
   Options,
   PrecomposedTransaction,
@@ -14,14 +14,14 @@ import {
 export const coinSelection = (
   utxos: Utxo[],
   outputs: UserOutput[],
-  changeAddress: ChangeAddress,
+  changeAddress: string,
   certificates: Certificate[],
   withdrawals: Withdrawal[],
   accountPubKey: string,
   options?: Options,
 ): PrecomposedTransaction => {
   if (utxos.length === 0) {
-    throw Error(ERROR.UTXO_BALANCE_INSUFFICIENT.code);
+    throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
   }
 
   const res = largestFirst(
@@ -33,9 +33,7 @@ export const coinSelection = (
     accountPubKey,
     options,
   );
-  const incompleteOutputs = res.outputs.find(
-    o => (!o.address && !o.addressParameters) || !o.amount,
-  );
+  const incompleteOutputs = res.outputs.find(o => !o.address || !o.amount);
 
   if (incompleteOutputs) {
     return {
@@ -53,3 +51,4 @@ export const coinSelection = (
 
 export * as trezorUtils from './utils/trezor';
 export * as types from './types/types';
+export { CoinSelectionError } from './utils/errors';
