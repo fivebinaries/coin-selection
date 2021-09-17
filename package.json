@@ -1,6 +1,6 @@
 {
-  "name": "@five-binaries/coin-selection",
-  "version": "0.0.1",
+  "name": "@fivebinaries/coin-selection",
+  "version": "0.0.1-beta.2",
   "description": "",
   "keywords": [
     "coin selection"

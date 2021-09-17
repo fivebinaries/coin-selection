@@ -1,13 +1,13 @@
 import {
   transformToTokenBundle,
-  transformToTrezorInput,
-  transformToTrezorOutput,
+  transformToTrezorInputs,
+  transformToTrezorOutputs,
 } from './transformations';
 import { signTransaction } from './sign';
 
 export {
   transformToTokenBundle,
-  transformToTrezorInput,
-  transformToTrezorOutput,
+  transformToTrezorInputs,
+  transformToTrezorOutputs,
   signTransaction,
 };
