@@ -19,4 +19,21 @@ export const ERROR = {
   },
 } as const;
 
-export const MIN_UTXO_VALUE = '1000000';
+export const CARDANO_PARAMS = {
+  PROTOCOL_MAGICS: {
+    mainnet: 764824073,
+    testnet: 1097911063,
+  },
+  NETWORK_IDS: {
+    mainnet: 1,
+    testnet: 0,
+  },
+  MIN_UTXO_VALUE: '1000000',
+  MAX_TX_SIZE: 16384,
+  MAX_VALUE_SIZE: 5000,
+} as const;
+
+// https://github.com/vacuumlabs/adalite/blob/d8ba3bb1ff439ae8e02abd99163435a989d97961/app/frontend/wallet/shelley/transaction/constants.ts
+// policyId is 28 bytes, assetName max 32 bytes, together with quantity makes
+// max token size about 70 bytes, max output size is 4000 => 4000 / 70 ~ 50
+export const MAX_TOKENS_PER_OUTPUT = 50;

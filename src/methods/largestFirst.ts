@@ -14,7 +14,6 @@ import {
   bigNumFromStr,
   calculateRequiredDeposit,
   getAssetAmount,
-  getInputCost,
   getOutputCost,
   prepareCertificates,
   prepareChangeOutput,
@@ -22,13 +21,14 @@ import {
   setMinUtxoValueForOutputs,
   sortUtxos,
   getTxBuilder,
-  assetsAmountSatisfied,
   getInitialUtxoSet,
   setMaxOutput,
   getTotalUserOutputsAmount,
   multiAssetToArray,
   buildTxInput,
   buildTxOutput,
+  getUnsatisfiedAssets,
+  splitChangeOutput,
 } from '../utils/common';
 import { CoinSelectionError } from '../utils/errors';
 
@@ -42,10 +42,8 @@ export const largestFirst = (
   options?: Options,
 ): CoinSelectionResult => {
   const txBuilder = getTxBuilder(options?.feeParams?.a);
-  let usedUtxos: Utxo[] = [];
-
+  const usedUtxos: Utxo[] = [];
   let sortedUtxos = sortUtxos(utxos);
-
   const accountKey = CardanoWasm.Bip32PublicKey.from_bytes(
     Buffer.from(accountPubKey, 'hex'),
   );
@@ -80,20 +78,22 @@ export const largestFirst = (
 
   const preparedOutputs = setMinUtxoValueForOutputs(txBuilder, outputs);
 
-  // set initial utxos set for setMax functionality
-  const maxOutput = preparedOutputs[outputs.findIndex(o => !!o.setMax)];
-  const { used, remaining } = getInitialUtxoSet(sortedUtxos, maxOutput);
-  usedUtxos = used;
-  sortedUtxos = remaining;
-
-  usedUtxos.forEach(utxo => {
-    // this should really be a function
-    const { inputFee } = getInputCost(txBuilder, utxo);
-    totalFeesAmount = totalFeesAmount.checked_add(inputFee);
+  const addUtxoToSelection = (utxo: Utxo) => {
+    const { input, address, amount } = buildTxInput(utxo);
+    const fee = txBuilder.fee_for_input(address, input, amount);
+    txBuilder.add_input(address, input, amount);
+    usedUtxos.push(utxo);
+    totalFeesAmount = totalFeesAmount.checked_add(fee);
     utxosTotalAmount = utxosTotalAmount.checked_add(
       bigNumFromStr(getAssetAmount(utxo)),
     );
-  });
+  };
+
+  // set initial utxos set for setMax functionality
+  const maxOutput = preparedOutputs[outputs.findIndex(o => !!o.setMax)];
+  const { used, remaining } = getInitialUtxoSet(sortedUtxos, maxOutput);
+  sortedUtxos = remaining;
+  used.forEach(utxo => addUtxoToSelection(utxo));
 
   // Calculate fee and minUtxoValue for all external outputs
   const outputsCost = preparedOutputs.map(output =>
@@ -108,18 +108,17 @@ export const largestFirst = (
   // add external outputs fees to total
   totalFeesAmount = totalFeesAmount.checked_add(totalOutputsFee);
 
-  let changeOutput: ChangeOutput | null = null;
-  let sufficientUtxos = false;
-
   let totalUserOutputsAmount = getTotalUserOutputsAmount(
     preparedOutputs,
     deposit,
   );
 
+  let changeOutput: ChangeOutput[] | null = null;
+  let sufficientUtxos = false;
   let forceAnotherRound = false;
   while (!sufficientUtxos) {
     // Calculate change output
-    let preparedChangeOutput = prepareChangeOutput(
+    let singleChangeOutput = prepareChangeOutput(
       txBuilder,
       usedUtxos,
       preparedOutputs,
@@ -133,11 +132,10 @@ export const largestFirst = (
       // set amount for the max output
       const { changeOutput: newChangeOutput } = setMaxOutput(
         maxOutput,
-        preparedChangeOutput,
+        singleChangeOutput,
       );
       // change output may be completely removed if all ADA are consumed by max output
-      preparedChangeOutput = newChangeOutput;
-
+      singleChangeOutput = newChangeOutput;
       // recalculate  total user outputs amount
       totalUserOutputsAmount = getTotalUserOutputsAmount(
         preparedOutputs,
@@ -145,55 +143,46 @@ export const largestFirst = (
       );
     }
 
+    const changeOutputs = singleChangeOutput
+      ? splitChangeOutput(
+          txBuilder,
+          singleChangeOutput,
+          changeAddress,
+          options?._maxTokensPerOutput,
+        )
+      : [];
+
     let requiredAmount = totalFeesAmount.checked_add(totalUserOutputsAmount);
-    if (preparedChangeOutput) {
+    changeOutputs.forEach(changeOutput => {
+      // we need to cover amounts and fees for change outputs
       requiredAmount = requiredAmount
-        .checked_add(preparedChangeOutput.output.amount().coin())
-        .checked_add(preparedChangeOutput.outputFee);
-    }
+        .checked_add(changeOutput.output.amount().coin())
+        .checked_add(changeOutput.outputFee);
+    });
 
-    // console.log('----CURRENT UTXO SELECTION ITERATION----');
-    // console.log('usedUtxos', usedUtxos);
-    // console.log(
-    //   'utxosTotalAmount (ADA amount that needs to be spent (sum of utxos = outputs - fee))',
-    //   utxosTotalAmount.to_str(),
-    // );
-    // console.log(
-    //   'requiredAmount to cover fees for all inputs, outputs (including additional change output if needed) and output amounts themselves',
-    //   requiredAmount.to_str(),
-    // );
-    // console.log(
-    //   `CHANGE OUTPUT (already included in requiredAmount above): amount: ${
-    //     preparedChangeOutput?.output.amount
-    //   } fe: ${preparedChangeOutput?.outputFee.to_str()}`,
-    // );
-
-    // console.log('addAnotherUtxo', addAnotherUtxo);
+    // List of tokens for which we don't have enough utxos
+    const unsatisfiedAssets = getUnsatisfiedAssets(usedUtxos, preparedOutputs);
 
     if (
       utxosTotalAmount.compare(requiredAmount) >= 0 &&
-      assetsAmountSatisfied(usedUtxos, preparedOutputs) &&
+      unsatisfiedAssets.length === 0 &&
       usedUtxos.length > 0 && // TODO: force at least 1 utxo, otherwise withdrawal tx is composed without utxo if rewards > tx cost
       !forceAnotherRound
     ) {
       // we are done. we have enough utxos to cover fees + minUtxoValue for each output. now we can add the cost of the change output to total fees
-      if (preparedChangeOutput) {
-        totalFeesAmount = totalFeesAmount.checked_add(
-          preparedChangeOutput.outputFee,
-        );
+      if (changeOutputs.length > 0) {
+        changeOutputs.forEach(changeOutput => {
+          totalFeesAmount = totalFeesAmount.checked_add(changeOutput.outputFee);
+        });
+
         // set change output
-        changeOutput = {
+        changeOutput = changeOutputs.map(change => ({
           isChange: true,
-          amount: preparedChangeOutput.output.amount().coin().to_str(),
+          amount: change.output.amount().coin().to_str(),
           address: changeAddress,
-          assets: multiAssetToArray(
-            preparedChangeOutput.output.amount().multiasset(),
-          ),
-        };
+          assets: multiAssetToArray(change.output.amount().multiasset()),
+        }));
       } else {
-        const unspendableChangeAmount = utxosTotalAmount.clamped_sub(
-          totalFeesAmount.checked_add(totalUserOutputsAmount),
-        );
         if (sortedUtxos.length > 0) {
           // In current iteration we don't have enough utxo to meet min utxo value for an output,
           // but some utxos are still available, force adding another one in order to create a change output
@@ -201,30 +190,23 @@ export const largestFirst = (
           continue;
         }
 
-        // console.warn(
-        //   `Change output would be inefficient. Burning ${UnspendableChangeAmount.to_str()} as fee`,
-        // );
-        // Since we didn't add a change output we can burn its value + fee we would pay for it. That's equal to initial placeholderChangeOutputAmount
-
+        // Change output would be inefficient., we can burn its value + fee we would pay for it
+        const unspendableChangeAmount = utxosTotalAmount.clamped_sub(
+          totalFeesAmount.checked_add(totalUserOutputsAmount),
+        );
         totalFeesAmount = totalFeesAmount.checked_add(unspendableChangeAmount);
       }
       sufficientUtxos = true;
     } else {
+      if (unsatisfiedAssets.length > 0) {
+        sortedUtxos = sortUtxos(sortedUtxos, unsatisfiedAssets[0]);
+      } else {
+        sortedUtxos = sortUtxos(sortedUtxos);
+      }
+
       const utxo = sortedUtxos.shift();
       if (!utxo) break;
-
-      usedUtxos.push(utxo);
-
-      const { input, address, amount } = buildTxInput(utxo);
-      const inputFee = txBuilder.fee_for_input(address, input, amount);
-      txBuilder.add_input(address, input, amount);
-
-      // const { inputFee } = getInputCost(txBuilder, utxo);
-      // add input fee to total
-      totalFeesAmount = totalFeesAmount.checked_add(inputFee);
-      utxosTotalAmount = utxosTotalAmount.checked_add(
-        bigNumFromStr(getAssetAmount(utxo)),
-      );
+      addUtxoToSelection(utxo);
       forceAnotherRound = false;
     }
     // END LOOP
@@ -241,8 +223,10 @@ export const largestFirst = (
 
   const finalOutputs: Output[] = JSON.parse(JSON.stringify(preparedOutputs));
   if (changeOutput) {
-    finalOutputs.push(changeOutput);
-    txBuilder.add_output(buildTxOutput(changeOutput));
+    changeOutput.forEach(change => {
+      finalOutputs.push(change);
+      txBuilder.add_output(buildTxOutput(change));
+    });
   }
 
   txBuilder.set_fee(totalFeesAmount);
@@ -253,16 +237,8 @@ export const largestFirst = (
   const txBodyHex = Buffer.from(txBody.to_bytes()).toString('hex');
 
   const totalSpent = totalUserOutputsAmount.checked_add(totalFeesAmount);
-  // console.log('FINAL RESULT START==========');
-  // console.log('inputs', usedUtxos);
-  // console.log('outputs', finalOutputs);
-  // console.log('totalOutputAmount', totalOutputAmount.to_str());
-  // console.log('utxosTotalAmount', utxosTotalAmount.to_str());
-  // console.log('totalSpent', totalSpent.to_str());
-  // console.log('deposit', deposit.to_str());
-  // console.log('withdrawal', totalWithdrawal.to_str());
-  // console.log('FINAL RESULT END');
 
+  // Set max property with the value of an output which has setMax=true
   let max;
   if (maxOutput) {
     max =
@@ -275,10 +251,10 @@ export const largestFirst = (
     inputs: usedUtxos,
     outputs: finalOutputs,
     fee: totalFeesAmount.to_str(),
-    totalSpent: totalSpent.to_str(), //
+    totalSpent: totalSpent.to_str(),
     deposit: deposit.toString(),
     withdrawal: totalWithdrawal.to_str(),
-    tx: { body: txBodyHex, hash: txHash },
+    tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
     max,
   };
 };

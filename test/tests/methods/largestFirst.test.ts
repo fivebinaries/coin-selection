@@ -1,6 +1,10 @@
 import * as fixtures from '../../fixtures/largestFirst';
-import { BigNum } from '@emurgo/cardano-serialization-lib-browser';
+import {
+  BigNum,
+  TransactionBody,
+} from '@emurgo/cardano-serialization-lib-browser';
 import { largestFirst } from '../../../src/methods/largestFirst';
+import { multiAssetToArray } from '../../../src/utils/common';
 
 describe('coinSelection - largestFirst', () => {
   fixtures.nonFinalCompose.forEach(f => {
@@ -65,6 +69,26 @@ describe('coinSelection - largestFirst', () => {
       );
 
       expect(delta).toBe(0);
+
+      // txBody sanity check
+      const tx = TransactionBody.from_bytes(Buffer.from(res.tx.body, 'hex'));
+      expect(tx.inputs().len()).toBe(res.inputs.length);
+      expect(tx.outputs().len()).toBe(res.outputs.length);
+
+      for (let i = 0; i < res.outputs.length; i++) {
+        // lovelace amount
+        expect(tx.outputs().get(i).amount().coin().to_str()).toBe(
+          res.outputs[i].amount,
+        );
+        // address
+        expect(tx.outputs().get(i).address().to_bech32()).toBe(
+          res.outputs[i].address,
+        );
+        // assets
+        expect(
+          multiAssetToArray(tx.outputs().get(i).amount().multiasset()),
+        ).toMatchObject(res.outputs[i].assets);
+      }
     });
   });
 

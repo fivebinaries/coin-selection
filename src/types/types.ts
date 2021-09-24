@@ -68,7 +68,7 @@ export enum CardanoAddressType {
 }
 
 export interface CoinSelectionResult {
-  tx: { body: string; hash: string };
+  tx: { body: string; hash: string; size: number };
   inputs: Utxo[];
   outputs: Output[];
   fee: string;
@@ -123,4 +123,5 @@ export type Certificate =
 export interface Options {
   byron?: boolean;
   feeParams?: { a: string };
+  _maxTokensPerOutput?: number;
 }
