@@ -7,6 +7,7 @@ import {
   utxo4,
   utxo5,
   utxo6,
+  utxo7,
 } from './constants';
 
 export const nonFinalCompose = [
@@ -464,7 +465,7 @@ export const coinSelection = [
   },
   {
     description: 'set max on token output',
-    utxos: [utxo1, utxo2],
+    utxos: [utxo1, utxo7],
     outputs: [
       {
         address:
@@ -487,9 +488,9 @@ export const coinSelection = [
     options: { byron: false },
     result: {
       max: '1000',
-      totalSpent: '1615972', // plus amount in change output = 5000000
-      fee: '171529',
-      inputs: [utxo2],
+      totalSpent: '1617556', // plus amount in change output = 5000000
+      fee: '173113',
+      inputs: [utxo7, utxo1],
       outputs: [
         {
           address:
@@ -506,7 +507,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '3384028',
+          amount: '4792444',
           assets: [],
         },
       ],

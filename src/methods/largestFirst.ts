@@ -90,7 +90,8 @@ export const largestFirst = (
   };
 
   // set initial utxos set for setMax functionality
-  const maxOutput = preparedOutputs[outputs.findIndex(o => !!o.setMax)];
+  const maxOutputIndex = outputs.findIndex(o => !!o.setMax);
+  const maxOutput = preparedOutputs[maxOutputIndex];
   const { used, remaining } = getInitialUtxoSet(sortedUtxos, maxOutput);
   sortedUtxos = remaining;
   used.forEach(utxo => addUtxoToSelection(utxo));
@@ -117,6 +118,12 @@ export const largestFirst = (
   let sufficientUtxos = false;
   let forceAnotherRound = false;
   while (!sufficientUtxos) {
+    if (maxOutput) {
+      // reset previously computed maxOutput in order to correctly calculate a potential change output
+      preparedOutputs[maxOutputIndex] = setMinUtxoValueForOutputs(txBuilder, [
+        maxOutput,
+      ])[0];
+    }
     // Calculate change output
     let singleChangeOutput = prepareChangeOutput(
       txBuilder,
@@ -129,13 +136,12 @@ export const largestFirst = (
     );
 
     if (maxOutput) {
-      // set amount for the max output
-      const { changeOutput: newChangeOutput } = setMaxOutput(
-        maxOutput,
-        singleChangeOutput,
-      );
+      // set amount for a max output from a changeOutput calculated above
+      const { changeOutput: newChangeOutput, maxOutput: newMaxOutput } =
+        setMaxOutput(maxOutput, singleChangeOutput);
       // change output may be completely removed if all ADA are consumed by max output
       singleChangeOutput = newChangeOutput;
+      preparedOutputs[maxOutputIndex] = newMaxOutput;
       // recalculate  total user outputs amount
       totalUserOutputsAmount = getTotalUserOutputsAmount(
         preparedOutputs,
