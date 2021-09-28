@@ -1,4 +1,4 @@
-import { NetworkInfo } from '@emurgo/cardano-serialization-lib-nodejs';
+import { NetworkInfo } from '@emurgo/cardano-serialization-lib-browser';
 
 export const dummyAddress =
   'addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp';
