@@ -1,9 +1,10 @@
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
+  CARDANO_PARAMS,
   CertificateType,
   dummyAddress,
   ERROR,
-  MIN_UTXO_VALUE,
+  MAX_TOKENS_PER_OUTPUT,
 } from '../constants';
 import {
   Certificate,
@@ -13,32 +14,9 @@ import {
   OutputCost,
   UserOutput,
   Asset,
+  ChangeOutput,
 } from '../types/types';
 import { CoinSelectionError } from './errors';
-
-export const CARDANO = {
-  PROTOCOL_MAGICS: {
-    mainnet: 764824073,
-    testnet: 1097911063,
-  },
-  NETWORK_IDS: {
-    mainnet: 1,
-    testnet: 0,
-  },
-  ADDRESS_TYPE: {
-    Base: 0,
-    Pointer: 4,
-    Enterprise: 6,
-    Byron: 8,
-    Reward: 14,
-  },
-  CERTIFICATE_TYPE: {
-    StakeRegistration: 0,
-    StakeDeregistration: 1,
-    StakeDelegation: 2,
-    StakePoolRegistration: 3,
-  },
-} as const;
 
 export const bigNumFromStr = (num: string): CardanoWasm.BigNum =>
   CardanoWasm.BigNum.from_str(num);
@@ -46,16 +24,20 @@ export const bigNumFromStr = (num: string): CardanoWasm.BigNum =>
 export const getProtocolMagic = (
   tesnet?: boolean,
 ):
-  | typeof CARDANO.PROTOCOL_MAGICS['mainnet']
-  | typeof CARDANO.PROTOCOL_MAGICS['testnet'] =>
-  tesnet ? CARDANO.PROTOCOL_MAGICS.testnet : CARDANO.PROTOCOL_MAGICS.mainnet;
+  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['mainnet']
+  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet'] =>
+  tesnet
+    ? CARDANO_PARAMS.PROTOCOL_MAGICS.testnet
+    : CARDANO_PARAMS.PROTOCOL_MAGICS.mainnet;
 
 export const getNetworkId = (
   testnet?: boolean,
 ):
-  | typeof CARDANO.NETWORK_IDS['mainnet']
-  | typeof CARDANO.NETWORK_IDS['testnet'] =>
-  testnet ? CARDANO.NETWORK_IDS.testnet : CARDANO.NETWORK_IDS.mainnet;
+  | typeof CARDANO_PARAMS.NETWORK_IDS['mainnet']
+  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet'] =>
+  testnet
+    ? CARDANO_PARAMS.NETWORK_IDS.testnet
+    : CARDANO_PARAMS.NETWORK_IDS.mainnet;
 
 export const parseAsset = (
   hex: string,
@@ -122,7 +104,7 @@ export const multiAssetToArray = (
 export const getMinAdaRequired = (
   multiAsset: CardanoWasm.MultiAsset | null,
 ): CardanoWasm.BigNum => {
-  const minUtxoValue = bigNumFromStr(MIN_UTXO_VALUE);
+  const minUtxoValue = bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE);
   if (!multiAsset) return minUtxoValue;
   const Value = CardanoWasm.Value.new(minUtxoValue);
   Value.set_multiasset(multiAsset);
@@ -190,26 +172,10 @@ export const buildTxInput = (
   return { input, address, amount };
 };
 
-export const getInputCost = (
-  txBuilder: CardanoWasm.TransactionBuilder,
-  utxo: Utxo,
-): {
-  input: CardanoWasm.TransactionInput;
-  inputFee: CardanoWasm.BigNum;
-} => {
-  // Calculate additional fee required to add utxo to a transaction
-  const { input, address, amount } = buildTxInput(utxo);
-  const inputFee = txBuilder.fee_for_input(address, input, amount); // does utxoAddr make sense here?
-  return {
-    input: input,
-    inputFee,
-  };
-};
-
 export const buildTxOutput = (
   output: Output,
 ): CardanoWasm.TransactionOutput => {
-  const minUtxoValue = bigNumFromStr(MIN_UTXO_VALUE);
+  const minUtxoValue = bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE);
   // this will set required minUtxoValue even if output.amount === 0
   const outputAmount =
     output.amount && minUtxoValue.compare(bigNumFromStr(output.amount)) < 0
@@ -239,7 +205,7 @@ export const getOutputCost = (
   txBuilder: CardanoWasm.TransactionBuilder,
   output: Output,
 ): OutputCost => {
-  const minUtxoValue = bigNumFromStr(MIN_UTXO_VALUE);
+  const minUtxoValue = bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE);
   const txOutput = buildTxOutput(output);
   const outputFee = txBuilder.fee_for_output(txOutput);
   return {
@@ -365,6 +331,71 @@ export const setMinUtxoValueForOutputs = (
   return preparedOutputs;
 };
 
+export const splitChangeOutput = (
+  txBuilder: CardanoWasm.TransactionBuilder,
+  singleChangeOutput: OutputCost,
+  changeAddress: string,
+  maxTokensPerOutput = MAX_TOKENS_PER_OUTPUT,
+): OutputCost[] => {
+  if (!singleChangeOutput.output.amount().multiasset()) {
+    return [singleChangeOutput];
+  }
+
+  let lovelaceAvailable = singleChangeOutput.output
+    .amount()
+    .coin()
+    .checked_add(txBuilder.fee_for_output(singleChangeOutput.output));
+
+  const allAssets = multiAssetToArray(
+    singleChangeOutput.output.amount().multiasset(),
+  );
+  const nAssetBundles = Math.ceil(allAssets.length / maxTokensPerOutput);
+
+  const changeOutputs: ChangeOutput[] = [];
+  // split change output to multiple outputs, where each bundle has maximum of maxTokensPerOutput assets
+  for (let i = 0; i < nAssetBundles; i++) {
+    const assetsBundle = allAssets.slice(
+      i * maxTokensPerOutput,
+      (i + 1) * maxTokensPerOutput,
+    );
+
+    const minAdaRequired = getMinAdaRequired(buildMultiAsset(assetsBundle));
+    changeOutputs.push({
+      isChange: true,
+      address: changeAddress,
+      amount: minAdaRequired.to_str(),
+      assets: assetsBundle,
+    });
+  }
+
+  const changeOutputsCost = changeOutputs.map((partialChange, i) => {
+    let changeOutputCost = getOutputCost(txBuilder, partialChange);
+    lovelaceAvailable = lovelaceAvailable.clamped_sub(
+      bigNumFromStr(partialChange.amount).checked_add(
+        changeOutputCost.outputFee,
+      ),
+    );
+
+    if (i === changeOutputs.length - 1) {
+      // add all unused ADA to the last change output
+      let changeOutputAmount = lovelaceAvailable.checked_add(
+        bigNumFromStr(partialChange.amount),
+      );
+
+      if (changeOutputAmount.compare(changeOutputCost.minOutputAmount) < 0) {
+        // computed change amount would be below minUtxoValue
+        // set change output amount to met minimum requirements for minUtxoValue
+        changeOutputAmount = changeOutputCost.minOutputAmount;
+      }
+      partialChange.amount = changeOutputAmount.to_str();
+      changeOutputCost = getOutputCost(txBuilder, partialChange);
+    }
+    return changeOutputCost;
+  });
+
+  return changeOutputsCost;
+};
+
 export const prepareChangeOutput = (
   txBuilder: CardanoWasm.TransactionBuilder,
   usedUtxos: Utxo[],
@@ -446,28 +477,31 @@ export const prepareChangeOutput = (
 export const getTxBuilder = (a = '44'): CardanoWasm.TransactionBuilder =>
   CardanoWasm.TransactionBuilder.new(
     CardanoWasm.LinearFee.new(bigNumFromStr(a), bigNumFromStr('155381')),
-    bigNumFromStr(MIN_UTXO_VALUE),
+    bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE),
     // pool deposit
     bigNumFromStr('500000000'),
     // key deposit
     bigNumFromStr('2000000'),
+    CARDANO_PARAMS.MAX_VALUE_SIZE,
+    CARDANO_PARAMS.MAX_TX_SIZE,
   );
 
-export const assetsAmountSatisfied = (
+export const getUnsatisfiedAssets = (
   utxos: Utxo[],
   outputs: Output[],
-): boolean => {
-  let assetsAmountSatisfied = true;
+): string[] => {
+  const assets: string[] = [];
+
   outputs.forEach(output => {
     if (output.assets.length > 0) {
       const asset = output.assets[0];
       const assetAmountInUtxos = getSumAssetAmount(utxos, asset.unit);
       if (assetAmountInUtxos.compare(bigNumFromStr(asset.quantity)) < 0) {
-        assetsAmountSatisfied = false;
+        assets.push(asset.unit);
       }
     }
   });
-  return assetsAmountSatisfied;
+  return assets;
 };
 
 export const getInitialUtxoSet = (

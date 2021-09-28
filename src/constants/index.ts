@@ -1,3 +1,5 @@
+import { NetworkInfo } from '@emurgo/cardano-serialization-lib-nodejs';
+
 export const dummyAddress =
   'addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp';
 
@@ -19,4 +21,21 @@ export const ERROR = {
   },
 } as const;
 
-export const MIN_UTXO_VALUE = '1000000';
+export const CARDANO_PARAMS = {
+  PROTOCOL_MAGICS: {
+    mainnet: NetworkInfo.mainnet().protocol_magic(),
+    testnet: NetworkInfo.testnet().protocol_magic(),
+  },
+  NETWORK_IDS: {
+    mainnet: NetworkInfo.mainnet().network_id(),
+    testnet: NetworkInfo.testnet().network_id(),
+  },
+  MIN_UTXO_VALUE: '1000000',
+  MAX_TX_SIZE: 16384,
+  MAX_VALUE_SIZE: 5000,
+} as const;
+
+// https://github.com/vacuumlabs/adalite/blob/d8ba3bb1ff439ae8e02abd99163435a989d97961/app/frontend/wallet/shelley/transaction/constants.ts
+// policyId is 28 bytes, assetName max 32 bytes, together with quantity makes
+// max token size about 70 bytes, max output size is 4000 => 4000 / 70 ~ 50
+export const MAX_TOKENS_PER_OUTPUT = 50;

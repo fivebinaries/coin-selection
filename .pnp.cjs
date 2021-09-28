@@ -35,8 +35,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {
           "packageLocation": "./",
           "packageDependencies": [
-            ["@emurgo/cardano-serialization-lib-browser", "npm:8.1.0"],
-            ["@emurgo/cardano-serialization-lib-nodejs", "npm:8.1.0"],
+            ["@emurgo/cardano-serialization-lib-browser", "npm:9.1.0"],
+            ["@emurgo/cardano-serialization-lib-nodejs", "npm:9.1.0"],
             ["@swc-node/jest", "npm:1.3.1"],
             ["@types/jest", "npm:26.0.24"],
             ["@types/node", "npm:16.6.1"],
@@ -838,19 +838,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@emurgo/cardano-serialization-lib-browser", [
-        ["npm:8.1.0", {
-          "packageLocation": "./.yarn/cache/@emurgo-cardano-serialization-lib-browser-npm-8.1.0-48fd497041-a23b974c71.zip/node_modules/@emurgo/cardano-serialization-lib-browser/",
+        ["npm:9.1.0", {
+          "packageLocation": "./.yarn/cache/@emurgo-cardano-serialization-lib-browser-npm-9.1.0-a0bcdd4c36-1d2f4123ee.zip/node_modules/@emurgo/cardano-serialization-lib-browser/",
           "packageDependencies": [
-            ["@emurgo/cardano-serialization-lib-browser", "npm:8.1.0"]
+            ["@emurgo/cardano-serialization-lib-browser", "npm:9.1.0"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@emurgo/cardano-serialization-lib-nodejs", [
-        ["npm:8.1.0", {
-          "packageLocation": "./.yarn/cache/@emurgo-cardano-serialization-lib-nodejs-npm-8.1.0-6a795df826-bb806e0dd1.zip/node_modules/@emurgo/cardano-serialization-lib-nodejs/",
+        ["npm:9.1.0", {
+          "packageLocation": "./.yarn/cache/@emurgo-cardano-serialization-lib-nodejs-npm-9.1.0-a02b8601db-7381557b65.zip/node_modules/@emurgo/cardano-serialization-lib-nodejs/",
           "packageDependencies": [
-            ["@emurgo/cardano-serialization-lib-nodejs", "npm:8.1.0"]
+            ["@emurgo/cardano-serialization-lib-nodejs", "npm:9.1.0"]
           ],
           "linkType": "HARD",
         }]
@@ -878,8 +878,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",
           "packageDependencies": [
             ["@fivebinaries/coin-selection", "workspace:."],
-            ["@emurgo/cardano-serialization-lib-browser", "npm:8.1.0"],
-            ["@emurgo/cardano-serialization-lib-nodejs", "npm:8.1.0"],
+            ["@emurgo/cardano-serialization-lib-browser", "npm:9.1.0"],
+            ["@emurgo/cardano-serialization-lib-nodejs", "npm:9.1.0"],
             ["@swc-node/jest", "npm:1.3.1"],
             ["@types/jest", "npm:26.0.24"],
             ["@types/node", "npm:16.6.1"],

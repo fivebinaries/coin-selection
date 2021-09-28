@@ -1,79 +1,14 @@
-import { Certificate, Utxo } from '../../src/types/types';
-
-const prepareUtxo = (utxo: Utxo, update: Partial<Utxo>) => {
-  return {
-    ...utxo,
-    ...update,
-  };
-};
-
-const changeAddress =
-  'addr1q8u2f05rprqjhygz22m06mhy4xrnqvqqpyuzhmxqfxnwvxz8d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90s22tk0f';
-
-const utxo1 = Object.freeze({
-  address:
-    'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
-  txHash: '3c388acb799a37a4f1cc99bec7626637b0b80626b9ef7c7a687282cab701178d',
-  outputIndex: 0,
-  amount: [
-    {
-      quantity: '5000000',
-      unit: 'lovelace',
-    },
-  ],
-});
-
-const utxo2 = Object.freeze({
-  address:
-    'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
-  txHash: '9e63fddf20cb7b5472e2c9a1bb4bbe3112b8f2b22e45bc441206bcddde5c58a0',
-  outputIndex: 1,
-  amount: [
-    {
-      quantity: '5000000',
-      unit: 'lovelace',
-    },
-    {
-      quantity: '1000',
-      unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
-    },
-  ],
-});
-
-const utxo3 = Object.freeze({
-  ...prepareUtxo(utxo1, {
-    outputIndex: 2,
-    amount: [
-      {
-        quantity: '10000000',
-        unit: 'lovelace',
-      },
-    ],
-  }),
-});
-
-const utxo4 = Object.freeze({
-  ...prepareUtxo(utxo1, {
-    outputIndex: 3,
-    amount: [
-      {
-        quantity: '2000000',
-        unit: 'lovelace',
-      },
-    ],
-  }),
-});
-const utxo5 = Object.freeze({
-  ...prepareUtxo(utxo1, {
-    outputIndex: 4,
-    amount: [
-      {
-        quantity: '1000000',
-        unit: 'lovelace',
-      },
-    ],
-  }),
-});
+import { Certificate } from '../../src/types/types';
+import {
+  changeAddress,
+  utxo1,
+  utxo2,
+  utxo3,
+  utxo4,
+  utxo5,
+  utxo6,
+  utxo7,
+} from './constants';
 
 export const nonFinalCompose = [
   {
@@ -189,6 +124,129 @@ export const coinSelection = [
     },
   },
   {
+    description: 'Prefer utxo with largest asset (token) value',
+    utxos: [utxo2, utxo6],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: undefined,
+        assets: [
+          {
+            unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+            quantity: '50',
+          },
+        ],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: { byron: false },
+    result: {
+      totalSpent: '1617512',
+      fee: '173069',
+      inputs: [utxo6],
+      outputs: [
+        {
+          address:
+            'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+          amount: '1444443',
+          assets: [
+            {
+              unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+              quantity: '50',
+            },
+          ],
+          setMax: false,
+        },
+        {
+          isChange: true,
+          address: changeAddress,
+          amount: '2382488',
+          assets: [
+            {
+              unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+              quantity: '1950',
+            },
+            {
+              quantity: '100',
+              unit: 'c6207cbbc916fa3bbb4b91cc7789c7d7ddfb84264fa76f7ee627a9d8',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    description: '_maxTokensPerOutput=1 creates 2 changes',
+    utxos: [utxo2, utxo6],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: undefined,
+        assets: [
+          {
+            unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+            quantity: '50',
+          },
+        ],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: { byron: false, _maxTokensPerOutput: 1 },
+    result: {
+      totalSpent: '1622044',
+      fee: '177601',
+      inputs: [utxo6, utxo2],
+      outputs: [
+        {
+          address:
+            'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+          amount: '1444443',
+          assets: [
+            {
+              unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+              quantity: '50',
+            },
+          ],
+          setMax: false,
+        },
+        {
+          isChange: true,
+          address: changeAddress,
+          amount: '1444443',
+          assets: [
+            {
+              unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+              quantity: '2950',
+            },
+          ],
+        },
+        {
+          isChange: true,
+          address: changeAddress,
+          amount: '5933513',
+          assets: [
+            {
+              quantity: '100',
+              unit: 'c6207cbbc916fa3bbb4b91cc7789c7d7ddfb84264fa76f7ee627a9d8',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     description:
       '2 ADA utxos (2 ADA, 1 ADA), needs both in order to return change and not to burn it as unnecessarily high fee',
     utxos: [utxo4, utxo5],
@@ -286,15 +344,15 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
-      max: '14828735',
+      max: '14833267',
       totalSpent: '15000000',
-      fee: '171265',
+      fee: '166733',
       inputs: [utxo3, utxo1],
       outputs: [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '14828735',
+          amount: '14833267',
           assets: [],
           setMax: true,
         },
@@ -320,15 +378,15 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
-      max: '8379628',
+      max: '8384160',
       totalSpent: '8555557', // plus 1444443 in change output = 10000000
-      fee: '175929',
+      fee: '171397',
       inputs: [utxo1, utxo2],
       outputs: [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '8379628',
+          amount: '8384160',
           assets: [],
           setMax: true,
         },
@@ -372,9 +430,9 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { byron: false },
     result: {
-      max: '7376768',
+      max: '7381300',
       totalSpent: '8555557', // plus 1444443 in change output = 10000000
-      fee: '178789',
+      fee: '174257',
       inputs: [utxo1, utxo2],
       outputs: [
         {
@@ -387,7 +445,7 @@ export const coinSelection = [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '7376768',
+          amount: '7381300',
           assets: [],
           setMax: true,
         },
@@ -407,7 +465,7 @@ export const coinSelection = [
   },
   {
     description: 'set max on token output',
-    utxos: [utxo1, utxo2],
+    utxos: [utxo1, utxo7],
     outputs: [
       {
         address:
@@ -430,9 +488,9 @@ export const coinSelection = [
     options: { byron: false },
     result: {
       max: '1000',
-      totalSpent: '1615972', // plus amount in change output = 5000000
-      fee: '171529',
-      inputs: [utxo2],
+      totalSpent: '1617556', // plus amount in change output = 5000000
+      fee: '173113',
+      inputs: [utxo7, utxo1],
       outputs: [
         {
           address:
@@ -449,7 +507,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '3384028',
+          amount: '4792444',
           assets: [],
         },
       ],
