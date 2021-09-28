@@ -1,3 +1,5 @@
+import { NetworkInfo } from '@emurgo/cardano-serialization-lib-nodejs';
+
 export const dummyAddress =
   'addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp';
 
@@ -21,12 +23,12 @@ export const ERROR = {
 
 export const CARDANO_PARAMS = {
   PROTOCOL_MAGICS: {
-    mainnet: 764824073,
-    testnet: 1097911063,
+    mainnet: NetworkInfo.mainnet().protocol_magic(),
+    testnet: NetworkInfo.testnet().protocol_magic(),
   },
   NETWORK_IDS: {
-    mainnet: 1,
-    testnet: 0,
+    mainnet: NetworkInfo.mainnet().network_id(),
+    testnet: NetworkInfo.testnet().network_id(),
   },
   MIN_UTXO_VALUE: '1000000',
   MAX_TX_SIZE: 16384,
