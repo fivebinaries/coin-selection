@@ -10,5 +10,6 @@ export class CoinSelectionError extends Error {
     this.name = 'CoinSelectionError';
     this.code = errorObject.code;
     this.message = errorObject.message;
+    Object.setPrototypeOf(this, CoinSelectionError.prototype);
   }
 }

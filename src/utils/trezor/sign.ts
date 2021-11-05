@@ -31,7 +31,7 @@ export const signTransaction = (
       const vKeyWitness = CardanoWasm.Vkeywitness.new(vKey, signature);
       vkeyWitnesses.add(vKeyWitness);
     } else if (w.type === CardanoTxWitnessType.BYRON_WITNESS) {
-      // Byron witness (TODO: needs testing)
+      // Byron witness (TODO: not used, needs testing)
       if (w.chainCode) {
         const xpubHex = `${w.pubKey}${w.chainCode}`;
         const bip32Key = CardanoWasm.Bip32PublicKey.from_bytes(

@@ -23,7 +23,7 @@ import {
   getTxBuilder,
   getInitialUtxoSet,
   setMaxOutput,
-  getTotalUserOutputsAmount,
+  getUserOutputQuantityWithDeposit,
   multiAssetToArray,
   buildTxInput,
   buildTxOutput,
@@ -109,7 +109,7 @@ export const largestFirst = (
   // add external outputs fees to total
   totalFeesAmount = totalFeesAmount.checked_add(totalOutputsFee);
 
-  let totalUserOutputsAmount = getTotalUserOutputsAmount(
+  let totalUserOutputsAmount = getUserOutputQuantityWithDeposit(
     preparedOutputs,
     deposit,
   );
@@ -131,7 +131,7 @@ export const largestFirst = (
       preparedOutputs,
       changeAddress,
       utxosTotalAmount,
-      getTotalUserOutputsAmount(preparedOutputs, deposit),
+      getUserOutputQuantityWithDeposit(preparedOutputs, deposit),
       totalFeesAmount,
     );
 
@@ -143,7 +143,7 @@ export const largestFirst = (
       singleChangeOutput = newChangeOutput;
       preparedOutputs[maxOutputIndex] = newMaxOutput;
       // recalculate  total user outputs amount
-      totalUserOutputsAmount = getTotalUserOutputsAmount(
+      totalUserOutputsAmount = getUserOutputQuantityWithDeposit(
         preparedOutputs,
         deposit,
       );

@@ -1,4 +1,4 @@
-import { Certificate } from '../../src/types/types';
+import { Certificate } from '../../../src/types/types';
 import {
   changeAddress,
   utxo1,
@@ -8,7 +8,7 @@ import {
   utxo5,
   utxo6,
   utxo7,
-} from './constants';
+} from '../../fixtures/constants';
 
 export const nonFinalCompose = [
   {
@@ -28,7 +28,7 @@ export const nonFinalCompose = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '168009',
       fee: '168009',
@@ -50,7 +50,7 @@ export const nonFinalCompose = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '2168009',
       fee: '168009',
@@ -80,7 +80,7 @@ export const nonFinalCompose = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '2170869',
       fee: '170869',
@@ -107,7 +107,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '5000000',
       fee: '180000',
@@ -145,7 +145,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '1617512',
       fee: '173069',
@@ -203,7 +203,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false, _maxTokensPerOutput: 1 },
+    options: { _maxTokensPerOutput: 1 },
     result: {
       totalSpent: '1622044',
       fee: '177601',
@@ -264,7 +264,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '1169593',
       fee: '169593',
@@ -303,7 +303,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false, feeParams: { a: '0' } },
+    options: { feeParams: { a: '0' } },
     result: {
       totalSpent: '3155381',
       fee: '155381', // since we set cost per byte to 0, the tx cost wll be equal to fee param B
@@ -342,7 +342,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       max: '14833267',
       totalSpent: '15000000',
@@ -376,7 +376,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       max: '8384160',
       totalSpent: '8555557', // plus 1444443 in change output = 10000000
@@ -428,7 +428,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       max: '7381300',
       totalSpent: '8555557', // plus 1444443 in change output = 10000000
@@ -485,7 +485,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       max: '1000',
       totalSpent: '1617556', // plus amount in change output = 5000000
@@ -529,7 +529,7 @@ export const coinSelection = [
     ],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '171265',
       fee: '171265',
@@ -567,7 +567,7 @@ export const coinSelection = [
     ],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '171265',
       fee: '171265',
@@ -595,7 +595,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '2166733',
       fee: '166733',
@@ -625,7 +625,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '172497',
       fee: '172497',
@@ -653,7 +653,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '171177',
       fee: '171177',
@@ -750,7 +750,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: {
       totalSpent: '3172761',
       fee: '172761',
@@ -822,7 +822,7 @@ export const exceptions = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
   {
@@ -843,7 +843,7 @@ export const exceptions = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
   {
@@ -906,7 +906,7 @@ export const exceptions = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
-    options: { byron: false },
+    options: {},
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
 ];

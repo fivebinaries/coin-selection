@@ -19,6 +19,10 @@ export const ERROR = {
     code: 'UNSUPPORTED_CERTIFICATE_TYPE',
     message: 'Unsupported certificate type',
   },
+  UTXO_NOT_FRAGMENTED_ENOUGH: {
+    code: 'UTXO_NOT_FRAGMENTED_ENOUGH',
+    message: 'UTxO Not fragmented enough.',
+  },
 } as const;
 
 export const CARDANO_PARAMS = {
