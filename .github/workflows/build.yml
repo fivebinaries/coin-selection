@@ -16,5 +16,6 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn 
     - run: yarn run lint
+    - run: yarn run type-check
     - run: yarn run test
     - run: yarn run build
