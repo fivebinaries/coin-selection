@@ -234,7 +234,6 @@ export const randomImprove = (
     0,
   );
 
-  // const fee = txBuilder.min_fee();
   const totalInput = getUtxoQuantity(utxoSelected, 'lovelace');
   const totalOutput = getOutputQuantity(finalOutputs, 'lovelace');
   const fee = totalInput.checked_sub(totalOutput);

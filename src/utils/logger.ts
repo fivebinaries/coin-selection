@@ -1,34 +1,38 @@
 interface Logger {
-  debug: (message: string) => void;
+  debug: (...args: unknown[]) => void;
 }
 
 const myFormat = ({
   level,
-  message,
+  args,
   label,
   timestamp,
 }: {
   level: string;
-  message: string;
+  args: unknown[];
   label: string;
-  timestamp: string;
-}): string => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
+  timestamp: string | undefined;
+}): unknown[] => {
+  if (timestamp) {
+    return [`${timestamp} [${label}] ${level}:`, ...args];
+  }
+  return [`[${label}] ${level}:`, ...args];
 };
 
 export const getLogger = (debug: boolean): Logger => {
   const label = '@fivebinaries/coin-selection';
   return {
-    debug: message => {
+    debug: (...args) => {
       if (!debug) return;
-      console.debug(
-        myFormat({
-          level: 'debug',
-          message: message,
-          timestamp: new Date().toISOString(),
-          label,
-        }),
-      );
+      const formattedMessage = myFormat({
+        level: 'DEBUG',
+        args: args,
+        // timestamp: new Date().toISOString(),
+        timestamp: undefined,
+        label,
+      });
+
+      console.log(...formattedMessage);
     },
   };
 };

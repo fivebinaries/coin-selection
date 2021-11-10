@@ -23,28 +23,21 @@ export const coinSelection = (
   options?: Options,
 ): PrecomposedTransaction => {
   const logger = getLogger(!!options?.debug);
-  logger.debug(
-    JSON.stringify(
-      {
-        utxos,
-        outputs,
-        changeAddress,
-        certificates,
-        withdrawals,
-        accountPubKey,
-        options,
-      },
-      null,
-      2,
-    ),
-  );
+  logger.debug('Args:', {
+    utxos,
+    outputs,
+    changeAddress,
+    certificates,
+    withdrawals,
+    accountPubKey,
+    options,
+  });
 
   if (utxos.length === 0) {
     logger.debug('Empty Utxo set');
     throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
   }
 
-  // logger.profile('coin-selection-alg');
   const t1 = new Date().getTime();
   let res;
   if (
@@ -96,7 +89,6 @@ export const coinSelection = (
   const incompleteOutputs = res.outputs.find(o => !o.address || !o.amount);
 
   if (incompleteOutputs) {
-    logger.debug('Returning selection for a draft transaction');
     const selection = {
       type: 'nonfinal',
       fee: res.fee,
@@ -105,16 +97,15 @@ export const coinSelection = (
       withdrawal: res.withdrawal,
       max: res.max,
     } as const;
-    logger.debug(JSON.stringify(selection, null, 2));
+    logger.debug('Coin selection for a draft transaction:', selection);
     return selection;
   } else {
-    logger.debug('Coin selection for a final transaction');
     const selection = {
       type: 'final',
       ...res,
       outputs: res.outputs as FinalOutput[],
     } as const;
-    logger.debug(JSON.stringify(selection, null, 2));
+    logger.debug('Coin selection for a final transaction:', selection);
     return selection;
   }
 };
