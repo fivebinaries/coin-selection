@@ -7,7 +7,7 @@ export interface Asset {
   quantity: string;
 }
 export interface Utxo {
-  address: string; // address to which the utxo belongs to (necessary only for calculating correct cost of an input, maybe could be replaced by a dummy address)
+  address: string;
   txHash: string;
   outputIndex: number;
   amount: Asset[];
@@ -121,7 +121,8 @@ export type Certificate =
   | CertificateStakePoolRegistration;
 
 export interface Options {
-  byron?: boolean;
   feeParams?: { a: string };
+  debug?: boolean;
+  forceLargestFirstSelection?: boolean;
   _maxTokensPerOutput?: number;
 }

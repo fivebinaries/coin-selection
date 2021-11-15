@@ -1,6 +1,8 @@
 import { ERROR } from './constants';
 import { largestFirst } from './methods/largestFirst';
+import { randomImprove } from './methods/randomImprove';
 import { CoinSelectionError } from './utils/errors';
+import { getLogger } from './utils/logger';
 import {
   Certificate,
   FinalOutput,
@@ -20,11 +22,8 @@ export const coinSelection = (
   accountPubKey: string,
   options?: Options,
 ): PrecomposedTransaction => {
-  if (utxos.length === 0) {
-    throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
-  }
-
-  const res = largestFirst(
+  const logger = getLogger(!!options?.debug);
+  logger.debug('Args:', {
     utxos,
     outputs,
     changeAddress,
@@ -32,20 +31,82 @@ export const coinSelection = (
     withdrawals,
     accountPubKey,
     options,
-  );
+  });
+
+  if (utxos.length === 0) {
+    logger.debug('Empty Utxo set');
+    throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
+  }
+
+  const t1 = new Date().getTime();
+  let res;
+  if (
+    outputs.find(o => o.setMax) ||
+    certificates.length > 0 ||
+    withdrawals.length > 0 ||
+    options?.forceLargestFirstSelection
+  ) {
+    logger.debug('Running largest-first alg');
+    res = largestFirst(
+      utxos,
+      outputs,
+      changeAddress,
+      certificates,
+      withdrawals,
+      accountPubKey,
+      options,
+    );
+  } else {
+    logger.debug('Running random-improve alg');
+    try {
+      res = randomImprove(utxos, outputs, changeAddress, options);
+    } catch (error) {
+      if (
+        error instanceof CoinSelectionError &&
+        error.code === 'UTXO_NOT_FRAGMENTED_ENOUGH'
+      ) {
+        logger.debug(
+          `random-improve failed with ${error.code}. Retrying with largest-first alg.`,
+        );
+        res = largestFirst(
+          utxos,
+          outputs,
+          changeAddress,
+          certificates,
+          withdrawals,
+          accountPubKey,
+          options,
+        );
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  const t2 = new Date().getTime();
+  logger.debug(`Duration: ${(t2 - t1) / 1000} seconds`);
+
   const incompleteOutputs = res.outputs.find(o => !o.address || !o.amount);
 
   if (incompleteOutputs) {
-    return {
+    const selection = {
       type: 'nonfinal',
       fee: res.fee,
       totalSpent: res.totalSpent,
       deposit: res.deposit,
       withdrawal: res.withdrawal,
       max: res.max,
-    };
+    } as const;
+    logger.debug('Coin selection for a draft transaction:', selection);
+    return selection;
   } else {
-    return { type: 'final', ...res, outputs: res.outputs as FinalOutput[] };
+    const selection = {
+      type: 'final',
+      ...res,
+      outputs: res.outputs as FinalOutput[],
+    } as const;
+    logger.debug('Coin selection for a final transaction:', selection);
+    return selection;
   }
 };
 
