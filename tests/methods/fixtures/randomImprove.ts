@@ -69,8 +69,8 @@ export const nonFinalCompose = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '168009',
-      fee: '168009',
+      totalSpent: '168053',
+      fee: '168053',
     },
   },
   {
@@ -91,8 +91,8 @@ export const nonFinalCompose = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '2168009',
-      fee: '168009',
+      totalSpent: '2168053',
+      fee: '168053',
     },
   },
   {
@@ -121,8 +121,8 @@ export const nonFinalCompose = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '6174257',
-      fee: '174257',
+      totalSpent: '6174301',
+      fee: '174301',
     },
   },
 ];
@@ -204,8 +204,8 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '2171177',
-      fee: '171177',
+      totalSpent: '2171221',
+      fee: '171221',
       // inputs: restrictedUtxoSet, // can't be matched, order changes
       outputs: [
         {
@@ -216,7 +216,7 @@ export const coinSelection = [
         },
         {
           address: changeAddress,
-          amount: '1628823',
+          amount: '1628779',
           isChange: true,
           assets: [],
         },
