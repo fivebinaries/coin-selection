@@ -16,6 +16,10 @@ export const ERROR = {
     code: 'UTXO_BALANCE_INSUFFICIENT',
     message: 'UTxO balance insufficient',
   },
+  UTXO_VALUE_TOO_SMALL: {
+    code: 'UTXO_VALUE_TOO_SMALL',
+    message: 'UTxO value too small',
+  },
   UNSUPPORTED_CERTIFICATE_TYPE: {
     code: 'UNSUPPORTED_CERTIFICATE_TYPE',
     message: 'Unsupported certificate type',

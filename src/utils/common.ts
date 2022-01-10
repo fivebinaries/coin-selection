@@ -318,9 +318,23 @@ export const setMinUtxoValueForOutputs = (
 
     let amount;
     if (output.assets.length > 0 && outputAmount.compare(minOutputAmount) < 0) {
+      // output with an asset(s) adjust minimum ADA to met network requirements
       amount = minOutputAmount.to_str();
     } else {
       amount = output.amount;
+    }
+
+    if (
+      !output.setMax &&
+      output.assets.length === 0 &&
+      output.amount &&
+      outputAmount.compare(minOutputAmount) < 0
+    ) {
+      // Case of an output without any asset, and without setMax = true
+      // If the user entered less than min utxo val then throw an error (won't throw if there is no amount yet)
+      // (On outputs with setMax flag we set '0' on purpose)
+      // (On outputs with an asset we automatically adjust ADA amount if it is below required minimum)
+      throw new CoinSelectionError(ERROR.UTXO_VALUE_TOO_SMALL);
     }
 
     if (output.setMax) {
@@ -334,7 +348,7 @@ export const setMinUtxoValueForOutputs = (
 
     return {
       ...output,
-      // if output contains assets make sure that minUtxoValue is at least minOutputAmount  (even for output where we want to setMax)
+      // if output contains assets make sure that minUtxoValue is at least minOutputAmount (even for output where we want to setMax)
       amount,
     } as UserOutput;
   });
