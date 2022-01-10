@@ -5,6 +5,7 @@ import {
   dummyAddress,
   ERROR,
   MAX_TOKENS_PER_OUTPUT,
+  MIN_UTXO_VALUE,
 } from '../constants';
 import {
   Certificate,
@@ -104,11 +105,12 @@ export const multiAssetToArray = (
 export const getMinAdaRequired = (
   multiAsset: CardanoWasm.MultiAsset | null,
 ): CardanoWasm.BigNum => {
-  const minUtxoValue = bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE);
-  if (!multiAsset) return minUtxoValue;
-  const Value = CardanoWasm.Value.new(minUtxoValue);
-  Value.set_multiasset(multiAsset);
-  return CardanoWasm.min_ada_required(Value, minUtxoValue);
+  const coinsPerUtxoWord = bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD);
+  const Value = CardanoWasm.Value.new(MIN_UTXO_VALUE); // placeholder value
+  if (multiAsset) {
+    Value.set_multiasset(multiAsset);
+  }
+  return CardanoWasm.min_ada_required(Value, false, coinsPerUtxoWord);
 };
 
 export const getAssetAmount = (
@@ -182,12 +184,11 @@ export const buildTxInput = (
 export const buildTxOutput = (
   output: Output,
 ): CardanoWasm.TransactionOutput => {
-  const minUtxoValue = bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE);
   // this will set required minUtxoValue even if output.amount === 0
   const outputAmount =
-    output.amount && minUtxoValue.compare(bigNumFromStr(output.amount)) < 0
+    output.amount && MIN_UTXO_VALUE.compare(bigNumFromStr(output.amount)) < 0
       ? bigNumFromStr(output.amount)
-      : minUtxoValue; // ADA only output
+      : MIN_UTXO_VALUE; // ADA only output
 
   let outputValue = CardanoWasm.Value.new(outputAmount);
 
@@ -212,10 +213,14 @@ export const getOutputCost = (
   txBuilder: CardanoWasm.TransactionBuilder,
   output: Output,
 ): OutputCost => {
-  const minUtxoValue = bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE);
+  const coinsPerUtxoWord = bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD);
   const txOutput = buildTxOutput(output);
   const outputFee = txBuilder.fee_for_output(txOutput);
-  const minAda = CardanoWasm.min_ada_required(txOutput.amount(), minUtxoValue);
+  const minAda = CardanoWasm.min_ada_required(
+    txOutput.amount(),
+    false,
+    coinsPerUtxoWord,
+  );
   return {
     output: txOutput,
     outputFee,
@@ -342,6 +347,7 @@ export const splitChangeOutput = (
   changeAddress: string,
   maxTokensPerOutput = MAX_TOKENS_PER_OUTPUT,
 ): OutputCost[] => {
+  // TODO: https://github.com/Emurgo/cardano-serialization-lib/pull/236
   const multiAsset = singleChangeOutput.output.amount().multiasset();
   if (!multiAsset || (multiAsset && multiAsset.len() < maxTokensPerOutput)) {
     return [singleChangeOutput];
@@ -508,14 +514,16 @@ export const prepareChangeOutput = (
 
 export const getTxBuilder = (a = '44'): CardanoWasm.TransactionBuilder =>
   CardanoWasm.TransactionBuilder.new(
-    CardanoWasm.LinearFee.new(bigNumFromStr(a), bigNumFromStr('155381')),
-    bigNumFromStr(CARDANO_PARAMS.MIN_UTXO_VALUE),
-    // pool deposit
-    bigNumFromStr('500000000'),
-    // key deposit
-    bigNumFromStr('2000000'),
-    CARDANO_PARAMS.MAX_VALUE_SIZE,
-    CARDANO_PARAMS.MAX_TX_SIZE,
+    CardanoWasm.TransactionBuilderConfigBuilder.new()
+      .fee_algo(
+        CardanoWasm.LinearFee.new(bigNumFromStr(a), bigNumFromStr('155381')),
+      )
+      .pool_deposit(bigNumFromStr('500000000'))
+      .key_deposit(bigNumFromStr('2000000'))
+      .coins_per_utxo_word(bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD))
+      .max_value_size(CARDANO_PARAMS.MAX_VALUE_SIZE)
+      .max_tx_size(CARDANO_PARAMS.MAX_TX_SIZE)
+      .build(),
   );
 
 export const getUnsatisfiedAssets = (
@@ -602,6 +610,8 @@ export const setMaxOutput = (
         changeOutput = null;
       } else {
         newMaxAmount = newMaxAmount.clamped_sub(changeOutput.minOutputAmount);
+
+        // TODO: CardanoWasm.min_ada_required(Value, false, coinsPerUtxoWord) returns slightly lower value
         if (newMaxAmount.compare(bigNumFromStr('1000000')) < 0) {
           // the amount would be less than min required ADA
           throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);

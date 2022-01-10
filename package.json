@@ -1,6 +1,6 @@
 {
   "name": "@fivebinaries/coin-selection",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "",
   "keywords": [
     "coin selection"
@@ -23,7 +23,7 @@
     "test:badges": "make-coverage-badge --output-path ./docs/badge-coverage.svg"
   },
   "devDependencies": {
-    "@emurgo/cardano-serialization-lib-nodejs": "^9.1.2",
+    "@emurgo/cardano-serialization-lib-nodejs": "10.0.0-beta.8",
     "@swc-node/jest": "^1.4.3",
     "@types/jest": "^27.4.0",
     "@types/node": "^16.3.2",
@@ -44,7 +44,7 @@
     "typescript": "^4.4.4"
   },
   "dependencies": {
-    "@emurgo/cardano-serialization-lib-browser": "^9.1.2"
+    "@emurgo/cardano-serialization-lib-browser": "^10.0.0-beta.8"
   },
   "packageManager": "yarn@3.1.1"
 }

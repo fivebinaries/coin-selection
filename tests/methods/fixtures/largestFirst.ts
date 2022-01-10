@@ -147,14 +147,14 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '1617556',
+      totalSpent: '1517911',
       fee: '173113',
       inputs: [utxo6],
       outputs: [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '1444443',
+          amount: '1344798',
           assets: [
             {
               unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
@@ -166,7 +166,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '2382444',
+          amount: '2482089',
           assets: [
             {
               unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
@@ -205,14 +205,14 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: { _maxTokensPerOutput: 1 },
     result: {
-      totalSpent: '1622088',
+      totalSpent: '1522443',
       fee: '177645',
       inputs: [utxo6, utxo2],
       outputs: [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '1444443',
+          amount: '1344798',
           assets: [
             {
               unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
@@ -224,7 +224,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '1444443',
+          amount: '1344798',
           assets: [
             {
               unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
@@ -235,7 +235,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '5933469',
+          amount: '6132759',
           assets: [
             {
               quantity: '100',
@@ -378,22 +378,22 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      max: '8384116',
-      totalSpent: '8555557', // plus 1444443 in change output = 10000000
+      max: '8483761',
+      totalSpent: '8655202', // plus 1344798 in change output = 10000000
       fee: '171441',
       inputs: [utxo1, utxo2],
       outputs: [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '8384116',
+          amount: '8483761',
           assets: [],
           setMax: true,
         },
         {
           isChange: true,
           address: changeAddress,
-          amount: '1444443',
+          amount: '1344798',
           assets: [
             {
               quantity: '1000',
@@ -430,8 +430,8 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      max: '7381256',
-      totalSpent: '8555557', // plus 1444443 in change output = 10000000
+      max: '7480901',
+      totalSpent: '8655202', // plus 1344798 in change output = 10000000
       fee: '174301',
       inputs: [utxo1, utxo2],
       outputs: [
@@ -445,14 +445,14 @@ export const coinSelection = [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '7381256',
+          amount: '7480901',
           assets: [],
           setMax: true,
         },
         {
           isChange: true,
           address: changeAddress,
-          amount: '1444443',
+          amount: '1344798',
           assets: [
             {
               quantity: '1000',
@@ -488,14 +488,14 @@ export const coinSelection = [
     options: {},
     result: {
       max: '1000',
-      totalSpent: '1617600', // plus amount in change output = 5000000
+      totalSpent: '1517955', // plus amount in change output = 5000000
       fee: '173157',
       inputs: [utxo7, utxo1],
       outputs: [
         {
           address:
             'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
-          amount: '1444443',
+          amount: '1344798',
           assets: [
             {
               quantity: '1000',
@@ -507,7 +507,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '4792400',
+          amount: '4892045',
           assets: [],
         },
       ],
@@ -875,7 +875,7 @@ export const exceptions = [
         outputIndex: 0,
         amount: [
           {
-            quantity: '1444443',
+            quantity: '1344798',
             unit: 'lovelace',
           },
           {
