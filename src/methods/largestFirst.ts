@@ -205,6 +205,7 @@ export const largestFirst = (
       sufficientUtxos = true;
     } else {
       if (unsatisfiedAssets.length > 0) {
+        // TODO: https://github.com/Emurgo/cardano-serialization-lib/pull/264
         sortedUtxos = sortUtxos(sortedUtxos, unsatisfiedAssets[0]);
       } else {
         sortedUtxos = sortUtxos(sortedUtxos);
