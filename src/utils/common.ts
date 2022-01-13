@@ -202,9 +202,13 @@ export const buildTxOutput = (
     outputValue.set_multiasset(multiAsset);
   }
 
-  const outputAddr = CardanoWasm.Address.from_bech32(
-    output.address ?? dummyAddress,
-  ); // TODO: compatibility with byron
+  // If output.address was not defined fallback to bech32 address (useful for "precompose" tx
+  // which doesn't have all necessary data, but we can fill in the blanks and return some info such as fee)
+  const outputAddr =
+    output.address && CardanoWasm.ByronAddress.is_valid(output.address)
+      ? CardanoWasm.ByronAddress.from_base58(output.address).to_address()
+      : CardanoWasm.Address.from_bech32(output.address ?? dummyAddress);
+
   const txOutput = CardanoWasm.TransactionOutput.new(outputAddr, outputValue);
   return txOutput;
 };
