@@ -90,15 +90,23 @@ export const buildTxOutput = [
     },
   },
   {
-    description: 'Shelley address output with an asset',
+    description: 'Shelley address output with same policy assets',
     output: {
       address:
         'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
       amount: '5000000',
       assets: [
         {
-          unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
-          quantity: '50',
+          quantity: '5000',
+          unit: '57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf391652243484f43',
+        },
+        {
+          quantity: '10000',
+          unit: '57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf39165224d494e54',
+        },
+        {
+          quantity: '1000000',
+          unit: '57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf3916522534245525259',
         },
       ],
       setMax: false,
@@ -112,8 +120,16 @@ export const buildTxOutput = [
       amount: '5000000',
       assets: [
         {
-          unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
-          quantity: '50',
+          quantity: '5000',
+          unit: '57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf391652243484f43',
+        },
+        {
+          quantity: '10000',
+          unit: '57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf39165224d494e54',
+        },
+        {
+          quantity: '1000000',
+          unit: '57fca08abbaddee36da742a839f7d83a7e1d2419f1507fcbf3916522534245525259',
         },
       ],
     },
