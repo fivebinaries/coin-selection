@@ -56,17 +56,23 @@ export const parseAsset = (
 
 export const buildMultiAsset = (assets: Asset[]): CardanoWasm.MultiAsset => {
   const multiAsset = CardanoWasm.MultiAsset.new();
+  const assetsGroupedByPolicy: {
+    [policyId: string]: CardanoWasm.Assets;
+  } = {};
   assets.forEach(assetEntry => {
-    const asset = CardanoWasm.Assets.new();
     const { policyId, assetNameInHex } = parseAsset(assetEntry.unit);
-    asset.insert(
+    if (!assetsGroupedByPolicy[policyId]) {
+      assetsGroupedByPolicy[policyId] = CardanoWasm.Assets.new();
+    }
+    const assets = assetsGroupedByPolicy[policyId];
+    assets.insert(
       CardanoWasm.AssetName.new(Buffer.from(assetNameInHex, 'hex')),
       bigNumFromStr(assetEntry.quantity || '0'), // fallback for an empty string
     );
     const scriptHash = CardanoWasm.ScriptHash.from_bytes(
       Buffer.from(policyId, 'hex'),
     );
-    multiAsset.insert(scriptHash, asset);
+    multiAsset.insert(scriptHash, assets);
   });
   return multiAsset;
 };
