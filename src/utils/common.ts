@@ -2,7 +2,6 @@ import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
   CARDANO_PARAMS,
   CertificateType,
-  dummyAddress,
   ERROR,
   MAX_TOKENS_PER_OUTPUT,
   MIN_UTXO_VALUE,
@@ -183,6 +182,7 @@ export const buildTxInput = (
 
 export const buildTxOutput = (
   output: Output,
+  dummyAddress: string,
 ): CardanoWasm.TransactionOutput => {
   // this will set required minUtxoValue even if output.amount === 0
   const outputAmount =
@@ -216,9 +216,10 @@ export const buildTxOutput = (
 export const getOutputCost = (
   txBuilder: CardanoWasm.TransactionBuilder,
   output: Output,
+  dummyAddress: string,
 ): OutputCost => {
   const coinsPerUtxoWord = bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD);
-  const txOutput = buildTxOutput(output);
+  const txOutput = buildTxOutput(output, dummyAddress);
   const outputFee = txBuilder.fee_for_output(txOutput);
   const minAda = CardanoWasm.min_ada_required(
     txOutput.amount(),
@@ -314,10 +315,11 @@ export const calculateRequiredDeposit = (
 export const setMinUtxoValueForOutputs = (
   txBuilder: CardanoWasm.TransactionBuilder,
   outputs: UserOutput[],
+  dummyAddress: string,
 ): UserOutput[] => {
   const preparedOutputs = outputs.map(output => {
     // sets minimal output ADA amount in case of multi-asset output
-    const { minOutputAmount } = getOutputCost(txBuilder, output);
+    const { minOutputAmount } = getOutputCost(txBuilder, output, dummyAddress);
     const outputAmount = bigNumFromStr(output.amount || '0');
 
     let amount;
@@ -399,7 +401,11 @@ export const splitChangeOutput = (
   }
 
   const changeOutputsCost = changeOutputs.map((partialChange, i) => {
-    let changeOutputCost = getOutputCost(txBuilder, partialChange);
+    let changeOutputCost = getOutputCost(
+      txBuilder,
+      partialChange,
+      changeAddress,
+    );
     lovelaceAvailable = lovelaceAvailable.clamped_sub(
       bigNumFromStr(partialChange.amount).checked_add(
         changeOutputCost.outputFee,
@@ -418,7 +424,7 @@ export const splitChangeOutput = (
         changeOutputAmount = changeOutputCost.minOutputAmount;
       }
       partialChange.amount = changeOutputAmount.to_str();
-      changeOutputCost = getOutputCost(txBuilder, partialChange);
+      changeOutputCost = getOutputCost(txBuilder, partialChange, changeAddress);
     }
     return changeOutputCost;
   });
@@ -462,11 +468,15 @@ export const prepareChangeOutput = (
     })
     .filter(asset => asset.quantity !== '0');
 
-  const changeOutputCost = getOutputCost(txBuilder, {
-    address: changeAddress,
-    amount: placeholderChangeOutputAmount.to_str(),
-    assets: changeOutputAssets,
-  });
+  const changeOutputCost = getOutputCost(
+    txBuilder,
+    {
+      address: changeAddress,
+      amount: placeholderChangeOutputAmount.to_str(),
+      assets: changeOutputAssets,
+    },
+    changeAddress,
+  );
 
   // calculate change output amount as utxosTotalAmount - totalFeesAmount - change output fee
   const totalSpent = totalOutputAmount
@@ -513,11 +523,14 @@ export const prepareChangeOutput = (
     }
 
     // TODO: changeOutputCost.output.amount().set_coin(changeOutputAmount)?
-    const txOutput = buildTxOutput({
-      amount: changeOutputAmount.to_str(),
-      address: changeAddress,
-      assets: changeOutputAssets,
-    });
+    const txOutput = buildTxOutput(
+      {
+        amount: changeOutputAmount.to_str(),
+        address: changeAddress,
+        assets: changeOutputAssets,
+      },
+      changeAddress,
+    );
 
     // WARNING: It returns a change output also in a case where we don't have enough utxos to cover the output cost, but the change output is needed because it contains additional assets
     return {
@@ -656,11 +669,14 @@ export const setMaxOutput = (
   }
 
   if (changeOutput) {
-    const newChangeOutput = buildTxOutput({
-      amount: changeOutputAmount.to_str(),
-      address: changeOutput.output.address().to_bech32(),
-      assets: changeOutputAssets,
-    });
+    const newChangeOutput = buildTxOutput(
+      {
+        amount: changeOutputAmount.to_str(),
+        address: changeOutput.output.address().to_bech32(),
+        assets: changeOutputAssets,
+      },
+      changeOutput.output.address().to_bech32(),
+    );
 
     changeOutput = {
       ...changeOutput,
