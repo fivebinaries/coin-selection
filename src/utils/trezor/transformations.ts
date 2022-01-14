@@ -12,6 +12,8 @@ interface AssetInPolicy {
 }
 export const transformToTokenBundle = (assets: Asset[]) => {
   // prepare token bundle used in trezor output
+  if (assets.length === 0) return undefined;
+
   const uniquePolicies: string[] = [];
   assets.forEach(asset => {
     const { policyId } = parseAsset(asset.unit);
