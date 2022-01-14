@@ -1,9 +1,6 @@
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import { NetworkInfo } from '@emurgo/cardano-serialization-lib-browser';
 
-export const dummyAddress =
-  'addr_test1qz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer3jcu5d8ps7zex2k2xt3uqxgjqnnj83ws8lhrn648jjxtwq2ytjqp';
-
 export const CertificateType = {
   STAKE_REGISTRATION: 0,
   STAKE_DEREGISTRATION: 1,

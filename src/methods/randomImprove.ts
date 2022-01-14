@@ -64,12 +64,17 @@ const selection = (
   utxos: Utxo[],
   outputs: UserOutput[],
   txBuilder: CardanoWasm.TransactionBuilder,
+  dummyAddress: string,
 ) => {
   const utxoSelected: Utxo[] = [];
   const utxoRemaining = JSON.parse(JSON.stringify(utxos)) as Utxo[];
-  const preparedOutputs = setMinUtxoValueForOutputs(txBuilder, outputs);
+  const preparedOutputs = setMinUtxoValueForOutputs(
+    txBuilder,
+    outputs,
+    dummyAddress,
+  );
   preparedOutputs.forEach(output => {
-    const txOutput = buildTxOutput(output);
+    const txOutput = buildTxOutput(output, dummyAddress);
     txBuilder.add_output(txOutput);
   });
   // Check for UTXO_BALANCE_INSUFFICIENT comparing provided inputs with requested outputs
@@ -205,6 +210,7 @@ export const randomImprove = (
     utxos,
     outputs,
     txBuilder,
+    changeAddress,
   );
 
   // compute change and adjust for fee
@@ -226,7 +232,7 @@ export const randomImprove = (
       assets: multiAssetToArray(change.output.amount().multiasset()),
     };
     finalOutputs.push(ch);
-    txBuilder.add_output(buildTxOutput(ch));
+    txBuilder.add_output(buildTxOutput(ch, changeAddress));
   });
 
   const totalUserOutputsAmount = getUserOutputQuantityWithDeposit(

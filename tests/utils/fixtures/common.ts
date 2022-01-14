@@ -68,3 +68,54 @@ export const filterUtxos = [
     result: [],
   },
 ];
+
+export const buildTxOutput = [
+  {
+    description: 'Byron address output',
+    output: {
+      address:
+        '37btjrVyb4KDXBNC4haBVPCrro8AQPHwvCMp3RFhhSVWwfFmZ6wwzSK6JK1hY6wHNmtrpTf1kdbva8TCneM2YsiXT7mrzT21EacHnPpz5YyUdj64na',
+      amount: '5000000',
+      assets: [],
+      setMax: false,
+    },
+    dummyAddress:
+      'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+    asset: 'lovelace',
+    result: {
+      address:
+        '37btjrVyb4KDXBNC4haBVPCrro8AQPHwvCMp3RFhhSVWwfFmZ6wwzSK6JK1hY6wHNmtrpTf1kdbva8TCneM2YsiXT7mrzT21EacHnPpz5YyUdj64na',
+      amount: '5000000',
+      assets: [],
+    },
+  },
+  {
+    description: 'Shelley address output with an asset',
+    output: {
+      address:
+        'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+      amount: '5000000',
+      assets: [
+        {
+          unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+          quantity: '50',
+        },
+      ],
+      setMax: false,
+    },
+    dummyAddress:
+      'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+    asset: 'lovelace',
+    result: {
+      address:
+        'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+      amount: '5000000',
+      assets: [
+        {
+          unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+          quantity: '50',
+        },
+      ],
+    },
+  },
+];

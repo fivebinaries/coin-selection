@@ -76,7 +76,11 @@ export const largestFirst = (
     );
   }
 
-  const preparedOutputs = setMinUtxoValueForOutputs(txBuilder, outputs);
+  const preparedOutputs = setMinUtxoValueForOutputs(
+    txBuilder,
+    outputs,
+    changeAddress,
+  );
 
   const addUtxoToSelection = (utxo: Utxo) => {
     const { input, address, amount } = buildTxInput(utxo);
@@ -98,7 +102,7 @@ export const largestFirst = (
 
   // Calculate fee and minUtxoValue for all external outputs
   const outputsCost = preparedOutputs.map(output =>
-    getOutputCost(txBuilder, output),
+    getOutputCost(txBuilder, output, changeAddress),
   );
 
   const totalOutputsFee = outputsCost.reduce(
@@ -120,9 +124,11 @@ export const largestFirst = (
   while (!sufficientUtxos) {
     if (maxOutput) {
       // reset previously computed maxOutput in order to correctly calculate a potential change output
-      preparedOutputs[maxOutputIndex] = setMinUtxoValueForOutputs(txBuilder, [
-        maxOutput,
-      ])[0];
+      preparedOutputs[maxOutputIndex] = setMinUtxoValueForOutputs(
+        txBuilder,
+        [maxOutput],
+        changeAddress,
+      )[0];
     }
     // Calculate change output
     let singleChangeOutput = prepareChangeOutput(
@@ -224,7 +230,7 @@ export const largestFirst = (
   }
 
   preparedOutputs.forEach(output => {
-    const txOutput = buildTxOutput(output);
+    const txOutput = buildTxOutput(output, changeAddress);
     txBuilder.add_output(txOutput);
   });
 
@@ -232,7 +238,7 @@ export const largestFirst = (
   if (changeOutput) {
     changeOutput.forEach(change => {
       finalOutputs.push(change);
-      txBuilder.add_output(buildTxOutput(change));
+      txBuilder.add_output(buildTxOutput(change, changeAddress));
     });
   }
 
