@@ -69,10 +69,13 @@ export const buildMultiAsset = (assets: Asset[]): CardanoWasm.MultiAsset => {
       CardanoWasm.AssetName.new(Buffer.from(assetNameInHex, 'hex')),
       bigNumFromStr(assetEntry.quantity || '0'), // fallback for an empty string
     );
+  });
+
+  Object.keys(assetsGroupedByPolicy).forEach(policyId => {
     const scriptHash = CardanoWasm.ScriptHash.from_bytes(
       Buffer.from(policyId, 'hex'),
     );
-    multiAsset.insert(scriptHash, assets);
+    multiAsset.insert(scriptHash, assetsGroupedByPolicy[policyId]);
   });
   return multiAsset;
 };
