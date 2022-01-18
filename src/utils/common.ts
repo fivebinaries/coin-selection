@@ -627,14 +627,9 @@ export const setMaxOutput = (
   changeOutput: OutputCost | null,
 ): {
   maxOutput: UserOutput;
-  changeOutput: OutputCost | null;
-  newMaxAmount: CardanoWasm.BigNum;
-  maxOutputAsset: string;
 } => {
   const maxOutputAsset = maxOutput.assets[0]?.unit ?? 'lovelace';
   let newMaxAmount = bigNumFromStr('0');
-  let changeOutputAmount =
-    changeOutput?.output.amount().coin() ?? bigNumFromStr('0');
 
   let changeOutputAssets = multiAssetToArray(
     changeOutput?.output.amount().multiasset(),
@@ -651,12 +646,10 @@ export const setMaxOutput = (
       } else {
         newMaxAmount = newMaxAmount.clamped_sub(changeOutput.minOutputAmount);
 
-        // TODO: CardanoWasm.min_ada_required(Value, false, coinsPerUtxoWord) returns slightly lower value
-        if (newMaxAmount.compare(bigNumFromStr('1000000')) < 0) {
+        if (newMaxAmount.compare(MIN_UTXO_VALUE) < 0) {
           // the amount would be less than min required ADA
           throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
         }
-        changeOutputAmount = changeOutput.minOutputAmount;
       }
     }
     maxOutput.amount = newMaxAmount.to_str();
@@ -668,31 +661,11 @@ export const setMaxOutput = (
         changeOutputAssets.find(a => a.unit === maxOutputAsset)?.quantity ??
           '0',
       );
-      // remove asset from the change output
-      // TODO: fee could also be lowered since there are less assets than before
-      changeOutputAssets = changeOutputAssets.filter(
-        a => a.unit !== maxOutputAsset,
-      );
     }
     maxOutput.assets[0].quantity = newMaxAmount.to_str();
   }
 
-  if (changeOutput) {
-    const newChangeOutput = buildTxOutput(
-      {
-        amount: changeOutputAmount.to_str(),
-        address: changeOutput.output.address().to_bech32(),
-        assets: changeOutputAssets,
-      },
-      changeOutput.output.address().to_bech32(),
-    );
-
-    changeOutput = {
-      ...changeOutput,
-      output: newChangeOutput,
-    };
-  }
-  return { maxOutput, newMaxAmount, changeOutput, maxOutputAsset };
+  return { maxOutput };
 };
 
 export const getUserOutputQuantityWithDeposit = (

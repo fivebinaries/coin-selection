@@ -89,7 +89,6 @@ export const nonFinalCompose = [
 ];
 
 export const coinSelection = [
-  //   // TODO set max token, without amount
   {
     description: '1 ADA only utxo, 1 output, no change (dust burned as fee)',
     utxos: [utxo1],
@@ -488,8 +487,8 @@ export const coinSelection = [
     options: {},
     result: {
       max: '1000',
-      totalSpent: '1517955', // plus amount in change output = 5000000
-      fee: '173157',
+      totalSpent: '1516151', // plus amount in change output = 6410000
+      fee: '171353',
       inputs: [utxo7, utxo1],
       outputs: [
         {
@@ -507,7 +506,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '4892045',
+          amount: '4893849',
           assets: [],
         },
       ],
@@ -798,6 +797,174 @@ export const coinSelection = [
               quantity: '998900',
             },
           ],
+        },
+      ],
+    },
+  },
+  {
+    description: 'Correctly recalculate change output after set max on token',
+    utxos: [
+      {
+        address:
+          'addr_test1qzhts48qcr2s76qcrh4rvwwah5xc52g7fr4xtzfzq9ffxme9j9xney949w6u957hfn5r7gmlh789208l4g9cal4m9p3qyt8vq9',
+        txHash:
+          'd8ff7a39d1daf80ae2e99351c51fbb823f223e717cee09d23bc1b2691092632d',
+        outputIndex: 0,
+        amount: [
+          {
+            quantity: '1344798',
+            unit: 'lovelace',
+          },
+          {
+            quantity: '1',
+            unit: '3b746b6a5f8c43acc6bed9259ff7fc5f0b9e0be8adc3d63edfea98c77072657373757265',
+          },
+        ],
+      },
+      {
+        address:
+          'addr_test1qq6r7mgs3q42n8ja7sf9wkn747lnttke2zx7khdrc5a2e4p9j9xney949w6u957hfn5r7gmlh789208l4g9cal4m9p3q83lu76',
+        txHash:
+          '280c49a69c0fc24c3fdcdbcdd4030da3533a87e4378639bcd4a8841b3d2c6e21',
+        outputIndex: 2,
+        amount: [
+          {
+            quantity: '1344798',
+            unit: 'lovelace',
+          },
+        ],
+      },
+      {
+        address:
+          'addr_test1qzhts48qcr2s76qcrh4rvwwah5xc52g7fr4xtzfzq9ffxme9j9xney949w6u957hfn5r7gmlh789208l4g9cal4m9p3qyt8vq9',
+        txHash:
+          '05cf0d8c9824b6e1bf403329d159cc57d89b4c22d93835bbdee46687f7c69c69',
+        outputIndex: 0,
+        amount: [
+          {
+            quantity: '1344798',
+            unit: 'lovelace',
+          },
+          {
+            quantity: '1',
+            unit: '4f740e06506c0b8a1584760780ce3c61aea3b6061d5596d580e9aae66265726e617264',
+          },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        address:
+          'addr_test1qztq45fff6e84v0qctnzpg86lny8zf7nx0lmn47p3msk5tvw8qpyux7tm435rjuk5dqr6kny4ks9w7vqjnfrsvtjk82quqe75s',
+        assets: [
+          {
+            unit: '3b746b6a5f8c43acc6bed9259ff7fc5f0b9e0be8adc3d63edfea98c77072657373757265',
+            quantity: '1',
+          },
+        ],
+        setMax: false,
+      },
+      {
+        address:
+          'addr_test1qztq45fff6e84v0qctnzpg86lny8zf7nx0lmn47p3msk5tvw8qpyux7tm435rjuk5dqr6kny4ks9w7vqjnfrsvtjk82quqe75s',
+        assets: [
+          {
+            unit: '4f740e06506c0b8a1584760780ce3c61aea3b6061d5596d580e9aae66265726e617264',
+            quantity: '',
+          },
+        ],
+        setMax: true,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    result: {
+      totalSpent: '2871861',
+      fee: '182265',
+      inputs: [
+        {
+          address:
+            'addr_test1qzhts48qcr2s76qcrh4rvwwah5xc52g7fr4xtzfzq9ffxme9j9xney949w6u957hfn5r7gmlh789208l4g9cal4m9p3qyt8vq9',
+          txHash:
+            '05cf0d8c9824b6e1bf403329d159cc57d89b4c22d93835bbdee46687f7c69c69',
+          outputIndex: 0,
+          amount: [
+            {
+              quantity: '1344798',
+              unit: 'lovelace',
+            },
+            {
+              quantity: '1',
+              unit: '4f740e06506c0b8a1584760780ce3c61aea3b6061d5596d580e9aae66265726e617264',
+            },
+          ],
+        },
+        {
+          address:
+            'addr_test1qzhts48qcr2s76qcrh4rvwwah5xc52g7fr4xtzfzq9ffxme9j9xney949w6u957hfn5r7gmlh789208l4g9cal4m9p3qyt8vq9',
+          txHash:
+            'd8ff7a39d1daf80ae2e99351c51fbb823f223e717cee09d23bc1b2691092632d',
+          outputIndex: 0,
+          amount: [
+            {
+              quantity: '1344798',
+              unit: 'lovelace',
+            },
+            {
+              quantity: '1',
+              unit: '3b746b6a5f8c43acc6bed9259ff7fc5f0b9e0be8adc3d63edfea98c77072657373757265',
+            },
+          ],
+        },
+        {
+          address:
+            'addr_test1qq6r7mgs3q42n8ja7sf9wkn747lnttke2zx7khdrc5a2e4p9j9xney949w6u957hfn5r7gmlh789208l4g9cal4m9p3q83lu76',
+          txHash:
+            '280c49a69c0fc24c3fdcdbcdd4030da3533a87e4378639bcd4a8841b3d2c6e21',
+          outputIndex: 2,
+          amount: [
+            {
+              quantity: '1344798',
+              unit: 'lovelace',
+            },
+          ],
+        },
+      ],
+      outputs: [
+        {
+          address:
+            'addr_test1qztq45fff6e84v0qctnzpg86lny8zf7nx0lmn47p3msk5tvw8qpyux7tm435rjuk5dqr6kny4ks9w7vqjnfrsvtjk82quqe75s',
+          amount: '1344798',
+          assets: [
+            {
+              quantity: '1',
+              unit: '3b746b6a5f8c43acc6bed9259ff7fc5f0b9e0be8adc3d63edfea98c77072657373757265',
+            },
+          ],
+          setMax: false,
+        },
+        {
+          address:
+            'addr_test1qztq45fff6e84v0qctnzpg86lny8zf7nx0lmn47p3msk5tvw8qpyux7tm435rjuk5dqr6kny4ks9w7vqjnfrsvtjk82quqe75s',
+          amount: '1344798',
+          assets: [
+            {
+              quantity: '1',
+              unit: '4f740e06506c0b8a1584760780ce3c61aea3b6061d5596d580e9aae66265726e617264',
+            },
+          ],
+          setMax: true,
+        },
+        {
+          address:
+            'addr1q8u2f05rprqjhygz22m06mhy4xrnqvqqpyuzhmxqfxnwvxz8d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90s22tk0f',
+          amount: '1162533',
+          assets: [],
+          isChange: true,
         },
       ],
     },

@@ -6,6 +6,7 @@ import {
   CoinSelectionResult,
   Options,
   Output,
+  OutputCost,
   UserOutput,
   Utxo,
   Withdrawal,
@@ -131,7 +132,7 @@ export const largestFirst = (
       )[0];
     }
     // Calculate change output
-    let singleChangeOutput = prepareChangeOutput(
+    let singleChangeOutput: OutputCost | null = prepareChangeOutput(
       txBuilder,
       usedUtxos,
       preparedOutputs,
@@ -143,15 +144,26 @@ export const largestFirst = (
 
     if (maxOutput) {
       // set amount for a max output from a changeOutput calculated above
-      const { changeOutput: newChangeOutput, maxOutput: newMaxOutput } =
-        setMaxOutput(maxOutput, singleChangeOutput);
+      const { maxOutput: newMaxOutput } = setMaxOutput(
+        maxOutput,
+        singleChangeOutput,
+      );
       // change output may be completely removed if all ADA are consumed by max output
-      singleChangeOutput = newChangeOutput;
       preparedOutputs[maxOutputIndex] = newMaxOutput;
       // recalculate  total user outputs amount
       totalUserOutputsAmount = getUserOutputQuantityWithDeposit(
         preparedOutputs,
         deposit,
+      );
+      // recalculate change after setting amount to max output
+      singleChangeOutput = prepareChangeOutput(
+        txBuilder,
+        usedUtxos,
+        preparedOutputs,
+        changeAddress,
+        utxosTotalAmount,
+        getUserOutputQuantityWithDeposit(preparedOutputs, deposit),
+        totalFeesAmount,
       );
     }
 
