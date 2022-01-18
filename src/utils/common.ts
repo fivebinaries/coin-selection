@@ -631,7 +631,7 @@ export const setMaxOutput = (
   const maxOutputAsset = maxOutput.assets[0]?.unit ?? 'lovelace';
   let newMaxAmount = bigNumFromStr('0');
 
-  let changeOutputAssets = multiAssetToArray(
+  const changeOutputAssets = multiAssetToArray(
     changeOutput?.output.amount().multiasset(),
   );
 
