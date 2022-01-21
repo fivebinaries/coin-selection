@@ -4,36 +4,23 @@ import { randomImprove } from './methods/randomImprove';
 import { CoinSelectionError } from './utils/errors';
 import { getLogger } from './utils/logger';
 import {
-  Certificate,
+  CoinSelectionParams,
   FinalOutput,
   Options,
   PrecomposedTransaction,
-  UserOutput,
-  Utxo,
-  Withdrawal,
 } from './types/types';
 
 export const coinSelection = (
-  utxos: Utxo[],
-  outputs: UserOutput[],
-  changeAddress: string,
-  certificates: Certificate[],
-  withdrawals: Withdrawal[],
-  accountPubKey: string,
+  params: CoinSelectionParams,
   options?: Options,
 ): PrecomposedTransaction => {
   const logger = getLogger(!!options?.debug);
   logger.debug('Args:', {
-    utxos,
-    outputs,
-    changeAddress,
-    certificates,
-    withdrawals,
-    accountPubKey,
+    params,
     options,
   });
 
-  if (utxos.length === 0) {
+  if (params.utxos.length === 0) {
     logger.debug('Empty Utxo set');
     throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
   }
@@ -41,25 +28,17 @@ export const coinSelection = (
   const t1 = new Date().getTime();
   let res;
   if (
-    outputs.find(o => o.setMax) ||
-    certificates.length > 0 ||
-    withdrawals.length > 0 ||
+    params.outputs.find(o => o.setMax) ||
+    params.certificates.length > 0 ||
+    params.withdrawals.length > 0 ||
     options?.forceLargestFirstSelection
   ) {
     logger.debug('Running largest-first alg');
-    res = largestFirst(
-      utxos,
-      outputs,
-      changeAddress,
-      certificates,
-      withdrawals,
-      accountPubKey,
-      options,
-    );
+    res = largestFirst(params, options);
   } else {
     logger.debug('Running random-improve alg');
     try {
-      res = randomImprove(utxos, outputs, changeAddress, options);
+      res = randomImprove(params, options);
     } catch (error) {
       if (
         error instanceof CoinSelectionError &&
@@ -68,15 +47,7 @@ export const coinSelection = (
         logger.debug(
           `random-improve failed with ${error.code}. Retrying with largest-first alg.`,
         );
-        res = largestFirst(
-          utxos,
-          outputs,
-          changeAddress,
-          certificates,
-          withdrawals,
-          accountPubKey,
-          options,
-        );
+        res = largestFirst(params, options);
       } else {
         throw error;
       }

@@ -1,6 +1,7 @@
 import { ERROR } from '../constants';
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
+  CoinSelectionParams,
   CoinSelectionResult,
   Options,
   Output,
@@ -192,11 +193,13 @@ const calculateChange = (
 };
 
 export const randomImprove = (
-  utxos: Utxo[],
-  outputs: UserOutput[],
-  changeAddress: string,
+  params: Pick<
+    CoinSelectionParams,
+    'utxos' | 'outputs' | 'changeAddress' | 'ttl'
+  >,
   options?: Options,
 ): CoinSelectionResult => {
+  const { utxos, outputs, changeAddress, ttl } = params;
   const logger = getLogger(!!options?.debug);
   if (outputs.length > utxos.length) {
     logger.debug(
@@ -205,6 +208,9 @@ export const randomImprove = (
     throw new CoinSelectionError(ERROR.UTXO_NOT_FRAGMENTED_ENOUGH);
   }
   const txBuilder = getTxBuilder(options?.feeParams?.a);
+  if (ttl) {
+    txBuilder.set_ttl(ttl);
+  }
 
   const { utxoSelected, utxoRemaining, preparedOutputs } = selection(
     utxos,
@@ -253,12 +259,13 @@ export const randomImprove = (
   const txBodyHex = Buffer.from(txBody.to_bytes()).toString('hex');
 
   return {
+    tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
     inputs: utxoSelected,
     outputs: finalOutputs,
     fee: fee.to_str(),
     totalSpent: totalSpent.to_str(),
     deposit: '0',
     withdrawal: '0',
-    tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
+    ttl,
   };
 };

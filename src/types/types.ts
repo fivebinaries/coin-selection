@@ -75,6 +75,7 @@ export interface CoinSelectionResult {
   totalSpent: string;
   deposit: string;
   withdrawal: string;
+  ttl?: number;
   max?: string;
 }
 
@@ -125,4 +126,14 @@ export interface Options {
   debug?: boolean;
   forceLargestFirstSelection?: boolean;
   _maxTokensPerOutput?: number;
+}
+
+export interface CoinSelectionParams {
+  utxos: Utxo[];
+  outputs: UserOutput[];
+  changeAddress: string;
+  certificates: Certificate[];
+  withdrawals: Withdrawal[];
+  accountPubKey: string;
+  ttl?: number;
 }

@@ -213,8 +213,10 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    ttl: 123456789,
     options: {},
     result: {
+      ttl: 123456789,
       // non-deterministic, we rely on sanity check
     },
   },
@@ -236,11 +238,13 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    ttl: undefined,
     options: {},
     result: {
       totalSpent: '2800000',
       fee: '800000',
       // inputs: restrictedUtxoSet, // order changes
+      ttl: undefined,
       outputs: [
         {
           address:
