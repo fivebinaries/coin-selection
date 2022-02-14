@@ -1,15 +1,13 @@
 import { ERROR } from '../constants';
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
-  Certificate,
   ChangeOutput,
+  CoinSelectionParams,
   CoinSelectionResult,
   Options,
   Output,
   OutputCost,
-  UserOutput,
   Utxo,
-  Withdrawal,
 } from '../types/types';
 import {
   bigNumFromStr,
@@ -34,15 +32,23 @@ import {
 import { CoinSelectionError } from '../utils/errors';
 
 export const largestFirst = (
-  utxos: Utxo[],
-  outputs: UserOutput[],
-  changeAddress: string,
-  certificates: Certificate[],
-  withdrawals: Withdrawal[],
-  accountPubKey: string,
+  params: CoinSelectionParams,
   options?: Options,
 ): CoinSelectionResult => {
+  const {
+    utxos,
+    outputs,
+    changeAddress,
+    certificates,
+    withdrawals,
+    accountPubKey,
+    ttl,
+  } = params;
   const txBuilder = getTxBuilder(options?.feeParams?.a);
+  if (ttl) {
+    txBuilder.set_ttl(ttl);
+  }
+
   const usedUtxos: Utxo[] = [];
   let sortedUtxos = sortUtxos(utxos);
   const accountKey = CardanoWasm.Bip32PublicKey.from_bytes(
@@ -273,13 +279,14 @@ export const largestFirst = (
   }
 
   return {
+    tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
     inputs: usedUtxos,
     outputs: finalOutputs,
     fee: totalFeesAmount.to_str(),
     totalSpent: totalSpent.to_str(),
     deposit: deposit.toString(),
     withdrawal: totalWithdrawal.to_str(),
-    tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
+    ttl,
     max,
   };
 };

@@ -5,13 +5,23 @@ import { sanityCheck } from '../setup';
 describe('coinSelection - largestFirst', () => {
   fixtures.nonFinalCompose.forEach(f => {
     test(f.description, () => {
+      const {
+        utxos,
+        outputs,
+        changeAddress,
+        certificates,
+        withdrawals,
+        accountPubKey,
+      } = f;
       const res = largestFirst(
-        f.utxos,
-        f.outputs,
-        f.changeAddress,
-        f.certificates,
-        f.withdrawals,
-        f.accountPubKey,
+        {
+          utxos,
+          outputs,
+          changeAddress,
+          certificates,
+          withdrawals,
+          accountPubKey,
+        },
         f.options,
       );
 
@@ -21,13 +31,25 @@ describe('coinSelection - largestFirst', () => {
 
   fixtures.coinSelection.forEach(f => {
     test(f.description, () => {
+      const {
+        utxos,
+        outputs,
+        changeAddress,
+        certificates,
+        withdrawals,
+        accountPubKey,
+        ttl,
+      } = f;
       const res = largestFirst(
-        f.utxos,
-        f.outputs,
-        f.changeAddress,
-        f.certificates,
-        f.withdrawals,
-        f.accountPubKey,
+        {
+          utxos,
+          outputs,
+          changeAddress,
+          certificates,
+          withdrawals,
+          accountPubKey,
+          ttl,
+        },
         f.options,
       );
 
@@ -38,14 +60,24 @@ describe('coinSelection - largestFirst', () => {
 
   fixtures.exceptions.forEach(f => {
     test(f.description, () => {
+      const {
+        utxos,
+        outputs,
+        changeAddress,
+        certificates,
+        withdrawals,
+        accountPubKey,
+      } = f;
       const res = () =>
         largestFirst(
-          f.utxos,
-          f.outputs,
-          f.changeAddress,
-          f.certificates,
-          f.withdrawals,
-          f.accountPubKey,
+          {
+            utxos,
+            outputs,
+            changeAddress,
+            certificates,
+            withdrawals,
+            accountPubKey,
+          },
           f.options,
         );
 

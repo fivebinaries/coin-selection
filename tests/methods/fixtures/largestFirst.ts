@@ -106,6 +106,7 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    ttl: 123456789,
     options: {},
     result: {
       totalSpent: '5000000',
@@ -120,6 +121,7 @@ export const coinSelection = [
           setMax: false,
         },
       ],
+      ttl: 123456789,
     },
   },
   {
@@ -144,10 +146,12 @@ export const coinSelection = [
     withdrawals: [],
     accountPubKey:
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    ttl: undefined,
     options: {},
     result: {
       totalSpent: '1517911',
       fee: '173113',
+      ttl: undefined,
       inputs: [utxo6],
       outputs: [
         {
@@ -1075,5 +1079,54 @@ export const exceptions = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: 'UTXO_BALANCE_INSUFFICIENT',
+  },
+];
+
+export const params = [
+  {
+    description: 'ttl',
+    utxos: [utxo1],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: undefined,
+        assets: [],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    ttl: undefined,
+    result: {
+      ttl: undefined,
+    },
+  },
+  {
+    description: 'ttl',
+    utxos: [utxo1],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: undefined,
+        assets: [],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    ttl: 123456789,
+    result: {
+      ttl: 123456789,
+    },
   },
 ];
