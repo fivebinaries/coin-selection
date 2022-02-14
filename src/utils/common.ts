@@ -331,7 +331,7 @@ export const setMinUtxoValueForOutputs = (
     const { minOutputAmount } = getOutputCost(txBuilder, output, dummyAddress);
     const outputAmount = bigNumFromStr(output.amount || '0');
 
-    let amount;
+    let amount: string | undefined;
     if (output.assets.length > 0 && outputAmount.compare(minOutputAmount) < 0) {
       // output with an asset(s) adjust minimum ADA to met network requirements
       amount = minOutputAmount.to_str();
