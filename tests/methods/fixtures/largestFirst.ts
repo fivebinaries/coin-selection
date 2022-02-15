@@ -86,6 +86,34 @@ export const nonFinalCompose = [
       fee: '170913',
     },
   },
+  {
+    description: 'Non-final compose: token amount not filled',
+    utxos: [utxo1],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: undefined,
+        assets: [
+          {
+            unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+            quantity: '0',
+          },
+        ],
+        setMax: false,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    result: {
+      totalSpent: '1514567',
+      fee: '169769',
+    },
+  },
 ];
 
 export const coinSelection = [

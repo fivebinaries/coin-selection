@@ -5,10 +5,12 @@ import { CoinSelectionError } from './utils/errors';
 import { getLogger } from './utils/logger';
 import {
   CoinSelectionParams,
+  CoinSelectionResult,
   FinalOutput,
   Options,
   PrecomposedTransaction,
 } from './types/types';
+import { bigNumFromStr } from './utils/common';
 
 export const coinSelection = (
   params: CoinSelectionParams,
@@ -26,7 +28,7 @@ export const coinSelection = (
   }
 
   const t1 = new Date().getTime();
-  let res;
+  let res: CoinSelectionResult;
   if (
     params.outputs.find(o => o.setMax) ||
     params.certificates.length > 0 ||
@@ -57,7 +59,18 @@ export const coinSelection = (
   const t2 = new Date().getTime();
   logger.debug(`Duration: ${(t2 - t1) / 1000} seconds`);
 
-  const incompleteOutputs = res.outputs.find(o => !o.address || !o.amount);
+  const incompleteOutputs = res.outputs.find(
+    o =>
+      !o.address ||
+      !o.amount ||
+      // assets set with quantity = 0
+      (o.assets.length > 0 &&
+        o.assets.find(
+          a =>
+            !a.quantity ||
+            bigNumFromStr(a.quantity).compare(bigNumFromStr('0')) === 0,
+        )),
+  );
 
   if (incompleteOutputs) {
     const selection = {
