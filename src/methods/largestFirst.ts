@@ -13,7 +13,6 @@ import {
   bigNumFromStr,
   calculateRequiredDeposit,
   getAssetAmount,
-  getOutputCost,
   prepareCertificates,
   prepareChangeOutput,
   prepareWithdrawals,
@@ -28,6 +27,7 @@ import {
   buildTxOutput,
   getUnsatisfiedAssets,
   splitChangeOutput,
+  calculateUserOutputsFee,
 } from '../utils/common';
 import { CoinSelectionError } from '../utils/errors';
 
@@ -107,18 +107,10 @@ export const largestFirst = (
   sortedUtxos = remaining;
   used.forEach(utxo => addUtxoToSelection(utxo));
 
-  // Calculate fee and minUtxoValue for all external outputs
-  const outputsCost = preparedOutputs.map(output =>
-    getOutputCost(txBuilder, output, changeAddress),
+  // add cost of external outputs to total fee amount
+  totalFeesAmount = totalFeesAmount.checked_add(
+    calculateUserOutputsFee(txBuilder, preparedOutputs, changeAddress),
   );
-
-  const totalOutputsFee = outputsCost.reduce(
-    (acc, output) => (acc = acc.checked_add(output.outputFee)),
-    bigNumFromStr('0'),
-  );
-
-  // add external outputs fees to total
-  totalFeesAmount = totalFeesAmount.checked_add(totalOutputsFee);
 
   let totalUserOutputsAmount = getUserOutputQuantityWithDeposit(
     preparedOutputs,
@@ -137,6 +129,7 @@ export const largestFirst = (
         changeAddress,
       )[0];
     }
+
     // Calculate change output
     let singleChangeOutput: OutputCost | null = prepareChangeOutput(
       txBuilder,
@@ -154,6 +147,7 @@ export const largestFirst = (
         maxOutput,
         singleChangeOutput,
       );
+
       // change output may be completely removed if all ADA are consumed by max output
       preparedOutputs[maxOutputIndex] = newMaxOutput;
       // recalculate  total user outputs amount
@@ -161,6 +155,14 @@ export const largestFirst = (
         preparedOutputs,
         deposit,
       );
+
+      // recalculate fees for outputs as cost for max output may be larger than before
+      totalFeesAmount = txBuilder
+        .min_fee()
+        .checked_add(
+          calculateUserOutputsFee(txBuilder, preparedOutputs, changeAddress),
+        );
+
       // recalculate change after setting amount to max output
       singleChangeOutput = prepareChangeOutput(
         txBuilder,

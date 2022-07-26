@@ -118,6 +118,86 @@ export const nonFinalCompose = [
 
 export const coinSelection = [
   {
+    description: 'send max sundae',
+    utxos: [
+      {
+        address:
+          'addr1qy4xpnf4lk560dgrds5zsunh6xdssg94c5sc8dqdclcn2fdl85agr52j3ffkwzq2yasu59ccwvfj39kel85ng3u7lhlq4e4m4l',
+        txHash:
+          '9ed3ef581f545f2143eca490d7f20a511100add747bb3d651cc2aa5815f77b1d',
+        outputIndex: 1,
+        amount: [
+          {
+            quantity: '1344974',
+            unit: 'lovelace',
+          },
+          {
+            quantity: '5675656536',
+            unit: '9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d7753554e444145',
+          },
+        ],
+      },
+      {
+        address:
+          'addr1q860vxljhadqxnrrsr2j6yxnwpdkyquq74lmghx502aj0r28d2kd47hsre5v9urjyu8s0ryk38dxzw0t5jesncw4v90sp0878u',
+        txHash:
+          '06227a5ee5640d26224470ad195c82941bfa49386a85149c09c465c4edb0edc0',
+        outputIndex: 0,
+        amount: [
+          {
+            quantity: '10000000',
+            unit: 'lovelace',
+          },
+        ],
+      },
+    ],
+    outputs: [
+      {
+        address:
+          'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+        amount: '1344798',
+        assets: [
+          {
+            unit: '9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d7753554e444145',
+            quantity: '5675656536',
+          },
+        ],
+        setMax: true,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    ttl: 66578367,
+    options: {},
+    result: {
+      totalSpent: '1521299',
+      fee: '176501',
+      outputs: [
+        {
+          address:
+            'addr1qya0nkzrf04gmcpu66vdt7sudwptnyg5df6475y7jhtt2wc44vzmgrfy6wwf69xlaszdslksw8evveyykw4c82eavq7sx29tlc',
+          amount: '1344798',
+          assets: [
+            {
+              quantity: '5675656536',
+              unit: '9a9693a9a37912a5097918f97918d15240c92ab729a0b7c4aa144d7753554e444145',
+            },
+          ],
+          setMax: true,
+        },
+        {
+          address: changeAddress,
+          amount: '9823675',
+          assets: [],
+        },
+      ],
+    },
+  },
+
+  {
     description: '1 ADA only utxo, 1 output, no change (dust burned as fee)',
     utxos: [utxo1],
     outputs: [
@@ -519,8 +599,8 @@ export const coinSelection = [
     options: {},
     result: {
       max: '1000',
-      totalSpent: '1516151', // plus amount in change output = 6410000
-      fee: '171353',
+      totalSpent: '1516239', // plus amount in change output = 6410000
+      fee: '171441',
       inputs: [utxo7, utxo1],
       outputs: [
         {
@@ -538,7 +618,7 @@ export const coinSelection = [
         {
           isChange: true,
           address: changeAddress,
-          amount: '4893849',
+          amount: '4893761',
           assets: [],
         },
       ],
@@ -1109,7 +1189,6 @@ export const exceptions = [
     result: 'UTXO_BALANCE_INSUFFICIENT',
   },
 ];
-
 export const params = [
   {
     description: 'ttl',

@@ -487,7 +487,7 @@ export const prepareChangeOutput = (
     changeAddress,
   );
 
-  // calculate change output amount as utxosTotalAmount - totalFeesAmount - change output fee
+  // calculate change output amount as utxosTotalAmount - totalOutputAmount - totalFeesAmount - change output fee
   const totalSpent = totalOutputAmount
     .checked_add(totalFeesAmount)
     .checked_add(changeOutputCost.outputFee);
@@ -705,4 +705,22 @@ export const getRandomUtxo = (
       utxoRemaining.splice(utxoRemaining.indexOf(utxo), 1);
     },
   };
+};
+
+export const calculateUserOutputsFee = (
+  txBuilder: CardanoWasm.TransactionBuilder,
+  userOutputs: UserOutput[],
+  changeAddress: string,
+) => {
+  // Calculate fee and minUtxoValue for all external outputs
+  const outputsCost = userOutputs.map(output =>
+    getOutputCost(txBuilder, output, changeAddress),
+  );
+
+  const totalOutputsFee = outputsCost.reduce(
+    (acc, output) => (acc = acc.checked_add(output.outputFee)),
+    bigNumFromStr('0'),
+  );
+
+  return totalOutputsFee;
 };
