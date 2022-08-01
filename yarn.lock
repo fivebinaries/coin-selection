@@ -2,7 +2,7 @@
 # Manual changes might be lost - proceed with caution!
 
 __metadata:
-  version: 5
+  version: 6
   cacheKey: 8
 
 "@babel/code-frame@npm:^7.12.13, @babel/code-frame@npm:^7.14.5":
@@ -656,17 +656,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emurgo/cardano-serialization-lib-browser@npm:^10.0.0-beta.8":
-  version: 10.0.0-beta.8
-  resolution: "@emurgo/cardano-serialization-lib-browser@npm:10.0.0-beta.8"
-  checksum: 8775717540bfc754cd65192d43eb34ec48eeb437ba869442f054172a8295af288d2fab9783ed8cb149e11dfb618488dc4972503330e651e92183c4c932a460ec
+"@emurgo/cardano-serialization-lib-browser@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "@emurgo/cardano-serialization-lib-browser@npm:11.0.0"
+  checksum: 862b3177149b4fbf71aae7662e8270cc05fa41a02ee5b0d71dbdfe20317eba00ce6c7b56fc5a517256619d036a3041031c1650950ae105206f14b26d1fa7a7cb
   languageName: node
   linkType: hard
 
-"@emurgo/cardano-serialization-lib-nodejs@npm:10.0.3":
-  version: 10.0.3
-  resolution: "@emurgo/cardano-serialization-lib-nodejs@npm:10.0.3"
-  checksum: dcbae9b2c1dd305ef9210072e79260507f536707e5cd357ca36c49576a532570aef27a1bacc3b39cf93c02f883518e8ca28a9eac3834a4ff63fa54e71fb7907f
+"@emurgo/cardano-serialization-lib-nodejs@npm:11.0.0":
+  version: 11.0.0
+  resolution: "@emurgo/cardano-serialization-lib-nodejs@npm:11.0.0"
+  checksum: b22b707e83ecd254a9888e24ada14d07fa8d37c749bd49e67b4b9ca13a3a42cc1b5198b1118d751cee94b479d5b7addd15af5d875cb5c91418f69f3a98d5276e
   languageName: node
   linkType: hard
 
@@ -691,8 +691,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fivebinaries/coin-selection@workspace:."
   dependencies:
-    "@emurgo/cardano-serialization-lib-browser": ^10.0.0-beta.8
-    "@emurgo/cardano-serialization-lib-nodejs": 10.0.3
+    "@emurgo/cardano-serialization-lib-browser": ^11.0.0
+    "@emurgo/cardano-serialization-lib-nodejs": 11.0.0
     "@swc-node/jest": ^1.4.3
     "@types/jest": ^27.4.0
     "@types/node": ^16.3.2
@@ -6225,11 +6225,11 @@ typescript@^4.4.4:
 
 "typescript@patch:typescript@^4.4.4#~builtin<compat/typescript>":
   version: 4.4.4
-  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=493e53"
+  resolution: "typescript@patch:typescript@npm%3A4.4.4#~builtin<compat/typescript>::version=4.4.4&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: bd629ad0da4a15d79aaad56baf3ee7d96f6a181760d430ae77f8c5325df7bffd9edee57544a3970e3651e8b796fe03a5838a7eb39c6d46cc3866c0b23d36a0dd
+  checksum: 3d1b04449662193544b81d055479d03b4c5dca95f1a82f8922596f089d894c9fefbe16639d1d9dfe26a7054419645530cef44001bc17aed1fe1eb3c237e9b3c7
   languageName: node
   linkType: hard
 

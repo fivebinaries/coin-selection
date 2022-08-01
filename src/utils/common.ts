@@ -2,9 +2,9 @@ import * as CardanoWasm from '@emurgo/cardano-serialization-lib-browser';
 import {
   CARDANO_PARAMS,
   CertificateType,
+  DATA_COST_PER_UTXO_BYTE,
   ERROR,
   MAX_TOKENS_PER_OUTPUT,
-  MIN_UTXO_VALUE,
 } from '../constants';
 import {
   Certificate,
@@ -110,17 +110,6 @@ export const multiAssetToArray = (
   return assetsArray;
 };
 
-export const getMinAdaRequired = (
-  multiAsset: CardanoWasm.MultiAsset | null,
-): CardanoWasm.BigNum => {
-  const coinsPerUtxoWord = bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD);
-  const Value = CardanoWasm.Value.new(MIN_UTXO_VALUE); // placeholder value
-  if (multiAsset) {
-    Value.set_multiasset(multiAsset);
-  }
-  return CardanoWasm.min_ada_required(Value, false, coinsPerUtxoWord);
-};
-
 export const getAssetAmount = (
   obj: Pick<Utxo, 'amount'>,
   asset = 'lovelace',
@@ -193,24 +182,6 @@ export const buildTxOutput = (
   output: Output,
   dummyAddress: string,
 ): CardanoWasm.TransactionOutput => {
-  // this will set required minUtxoValue even if output.amount === 0
-  const outputAmount =
-    output.amount && MIN_UTXO_VALUE.compare(bigNumFromStr(output.amount)) < 0
-      ? bigNumFromStr(output.amount)
-      : MIN_UTXO_VALUE; // ADA only output
-
-  let outputValue = CardanoWasm.Value.new(outputAmount);
-
-  if (output.assets.length > 0) {
-    const multiAsset = buildMultiAsset(output.assets);
-    const minAdaRequired = getMinAdaRequired(multiAsset);
-
-    if (outputAmount.compare(minAdaRequired) < 0) {
-      outputValue = CardanoWasm.Value.new(minAdaRequired);
-    }
-    outputValue.set_multiasset(multiAsset);
-  }
-
   // If output.address was not defined fallback to bech32 address (useful for "precompose" tx
   // which doesn't have all necessary data, but we can fill in the blanks and return some info such as fee)
   const outputAddr =
@@ -218,7 +189,35 @@ export const buildTxOutput = (
       ? CardanoWasm.ByronAddress.from_base58(output.address).to_address()
       : CardanoWasm.Address.from_bech32(output.address ?? dummyAddress);
 
-  const txOutput = CardanoWasm.TransactionOutput.new(outputAddr, outputValue);
+  // Set initial amount
+  const outputAmount = output.amount
+    ? bigNumFromStr(output.amount)
+    : bigNumFromStr('0');
+
+  // Create Value including assets
+  let outputValue = CardanoWasm.Value.new(outputAmount);
+  const multiAsset =
+    output.assets.length > 0 ? buildMultiAsset(output.assets) : null;
+  if (multiAsset) {
+    outputValue.set_multiasset(multiAsset);
+  }
+
+  // Calculate min required ADA for the output
+  let txOutput = CardanoWasm.TransactionOutput.new(outputAddr, outputValue);
+  const minAdaRequired = CardanoWasm.min_ada_for_output(
+    txOutput,
+    DATA_COST_PER_UTXO_BYTE,
+  );
+
+  // If calculated min required ada is greater than current output value than adjust it
+  if (outputAmount.compare(minAdaRequired) < 0) {
+    outputValue = CardanoWasm.Value.new(minAdaRequired);
+    if (multiAsset) {
+      outputValue.set_multiasset(multiAsset);
+    }
+    txOutput = CardanoWasm.TransactionOutput.new(outputAddr, outputValue);
+  }
+
   return txOutput;
 };
 
@@ -227,13 +226,11 @@ export const getOutputCost = (
   output: Output,
   dummyAddress: string,
 ): OutputCost => {
-  const coinsPerUtxoWord = bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD);
   const txOutput = buildTxOutput(output, dummyAddress);
   const outputFee = txBuilder.fee_for_output(txOutput);
-  const minAda = CardanoWasm.min_ada_required(
-    txOutput.amount(),
-    false,
-    coinsPerUtxoWord,
+  const minAda = CardanoWasm.min_ada_for_output(
+    txOutput,
+    DATA_COST_PER_UTXO_BYTE,
   );
   return {
     output: txOutput,
@@ -400,7 +397,18 @@ export const splitChangeOutput = (
       (i + 1) * maxTokensPerOutput,
     );
 
-    const minAdaRequired = getMinAdaRequired(buildMultiAsset(assetsBundle));
+    const outputValue = CardanoWasm.Value.new_from_assets(
+      buildMultiAsset(assetsBundle),
+    );
+    const txOutput = CardanoWasm.TransactionOutput.new(
+      CardanoWasm.Address.from_bech32(changeAddress),
+      outputValue,
+    );
+
+    const minAdaRequired = CardanoWasm.min_ada_for_output(
+      txOutput,
+      DATA_COST_PER_UTXO_BYTE,
+    );
     changeOutputs.push({
       isChange: true,
       address: changeAddress,
@@ -560,7 +568,7 @@ export const getTxBuilder = (a = '44'): CardanoWasm.TransactionBuilder =>
       )
       .pool_deposit(bigNumFromStr('500000000'))
       .key_deposit(bigNumFromStr('2000000'))
-      .coins_per_utxo_word(bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_WORD))
+      .coins_per_utxo_byte(bigNumFromStr(CARDANO_PARAMS.COINS_PER_UTXO_BYTE))
       .max_value_size(CARDANO_PARAMS.MAX_VALUE_SIZE)
       .max_tx_size(CARDANO_PARAMS.MAX_TX_SIZE)
       .build(),
@@ -646,7 +654,16 @@ export const setMaxOutput = (
       } else {
         newMaxAmount = newMaxAmount.clamped_sub(changeOutput.minOutputAmount);
 
-        if (newMaxAmount.compare(MIN_UTXO_VALUE) < 0) {
+        const txOutput = CardanoWasm.TransactionOutput.new(
+          changeOutput.output.address(),
+          CardanoWasm.Value.new(newMaxAmount), // TODO: 0 before
+        );
+        const minUtxoVal = CardanoWasm.min_ada_for_output(
+          txOutput,
+          DATA_COST_PER_UTXO_BYTE,
+        );
+
+        if (newMaxAmount.compare(minUtxoVal) < 0) {
           // the amount would be less than min required ADA
           throw new CoinSelectionError(ERROR.UTXO_BALANCE_INSUFFICIENT);
         }
@@ -661,8 +678,20 @@ export const setMaxOutput = (
         changeOutputAssets.find(a => a.unit === maxOutputAsset)?.quantity ??
           '0',
       );
+      maxOutput.assets[0].quantity = newMaxAmount.to_str(); // TODO: set 0 if no change?
+
+      const txOutput = CardanoWasm.TransactionOutput.new(
+        changeOutput.output.address(),
+        // new_from_assets does not automatically include required ADA
+        CardanoWasm.Value.new_from_assets(buildMultiAsset(maxOutput.assets)),
+      );
+
+      // adjust ADA amount to cover min ada for the asset
+      maxOutput.amount = CardanoWasm.min_ada_for_output(
+        txOutput,
+        DATA_COST_PER_UTXO_BYTE,
+      ).to_str();
     }
-    maxOutput.assets[0].quantity = newMaxAmount.to_str();
   }
 
   return { maxOutput };
