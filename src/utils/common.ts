@@ -232,6 +232,7 @@ export const getOutputCost = (
     txOutput,
     DATA_COST_PER_UTXO_BYTE,
   );
+
   return {
     output: txOutput,
     outputFee,
@@ -409,6 +410,7 @@ export const splitChangeOutput = (
       txOutput,
       DATA_COST_PER_UTXO_BYTE,
     );
+
     changeOutputs.push({
       isChange: true,
       address: changeAddress,
@@ -752,4 +754,28 @@ export const calculateUserOutputsFee = (
   );
 
   return totalOutputsFee;
+};
+
+export const orderInputs = (
+  inputsToOrder: Utxo[],
+  txBody: CardanoWasm.TransactionBody,
+): Utxo[] => {
+  // reorder inputs to match order within tx
+  const orderedInputs: Utxo[] = [];
+  for (let i = 0; i < txBody.inputs().len(); i++) {
+    const txid = Buffer.from(
+      txBody.inputs().get(i).transaction_id().to_bytes(),
+    ).toString('hex');
+    const outputIndex = txBody.inputs().get(i).index();
+    const utxo = inputsToOrder.find(
+      uu => uu.txHash === txid && uu.outputIndex === outputIndex,
+    );
+    if (!utxo) {
+      throw new Error(
+        'Failed to order the utxos to match the order of inputs in constructed tx. THIS SHOULD NOT HAPPEN',
+      );
+    }
+    orderedInputs.push(utxo);
+  }
+  return orderedInputs;
 };

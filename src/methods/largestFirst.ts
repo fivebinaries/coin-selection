@@ -28,6 +28,7 @@ import {
   getUnsatisfiedAssets,
   splitChangeOutput,
   calculateUserOutputsFee,
+  orderInputs,
 } from '../utils/common';
 import { CoinSelectionError } from '../utils/errors';
 
@@ -272,7 +273,7 @@ export const largestFirst = (
   const totalSpent = totalUserOutputsAmount.checked_add(totalFeesAmount);
 
   // Set max property with the value of an output which has setMax=true
-  let max;
+  let max: string | undefined;
   if (maxOutput) {
     max =
       maxOutput.assets.length > 0
@@ -280,9 +281,12 @@ export const largestFirst = (
         : maxOutput.amount;
   }
 
+  // reorder inputs to match order within tx
+  const orderedInputs = orderInputs(usedUtxos, txBody);
+
   return {
     tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
-    inputs: usedUtxos,
+    inputs: orderedInputs,
     outputs: finalOutputs,
     fee: totalFeesAmount.to_str(),
     totalSpent: totalSpent.to_str(),
