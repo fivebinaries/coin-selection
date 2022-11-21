@@ -110,3 +110,23 @@ export const utxo7 = Object.freeze({
     ],
   }),
 });
+
+export const utxo8 = Object.freeze({
+  ...prepareUtxo(utxo2, {
+    outputIndex: 7,
+    amount: [
+      {
+        quantity: '2000000',
+        unit: 'lovelace',
+      },
+      {
+        quantity: '2000',
+        unit: '02477d7c23b4c2834b0be8ca8578dde47af0cc82a964688f6fc95a7a47524943',
+      },
+      {
+        quantity: '100',
+        unit: 'c6207cbbc916fa3bbb4b91cc7789c7d7ddfb84264fa76f7ee627a9d8',
+      },
+    ],
+  }),
+});

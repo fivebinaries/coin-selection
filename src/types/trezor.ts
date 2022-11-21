@@ -51,5 +51,5 @@ export type CardanoSignedTxWitness = {
   type: CardanoTxWitnessType;
   pubKey: string;
   signature: string;
-  chainCode?: string;
+  chainCode?: string | null;
 };

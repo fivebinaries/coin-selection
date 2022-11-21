@@ -24,6 +24,7 @@ import {
   getUtxoQuantity,
   getOutputQuantity,
   getRandomUtxo,
+  orderInputs,
 } from '../utils/common';
 import { CoinSelectionError } from '../utils/errors';
 import { getLogger } from '../utils/logger';
@@ -258,9 +259,11 @@ export const randomImprove = (
   ).toString('hex');
   const txBodyHex = Buffer.from(txBody.to_bytes()).toString('hex');
 
+  // reorder inputs to match order within tx
+  const orderedInputs = orderInputs(utxoSelected, txBody);
   return {
     tx: { body: txBodyHex, hash: txHash, size: txBuilder.full_size() },
-    inputs: utxoSelected,
+    inputs: orderedInputs,
     outputs: finalOutputs,
     fee: fee.to_str(),
     totalSpent: totalSpent.to_str(),
