@@ -42,4 +42,14 @@ describe('common utils', () => {
       expect(assets).toStrictEqual(f.result.assets);
     });
   });
+
+  fixtures.orderInputs.forEach(f => {
+    test(f.description, () => {
+      const inputs = utils.orderInputs(
+        f.inputsToOrder,
+        CardanoWasm.TransactionBody.from_bytes(Buffer.from(f.txBodyHex, 'hex')),
+      );
+      expect(inputs).toStrictEqual(f.result);
+    });
+  });
 });
