@@ -1,6 +1,6 @@
 {
-  "name": "@cardano/coin-selection",
-  "version": "1.0.0",
+  "name": "cardano-coin-selection",
+  "version": "1.0.1",
   "description": "",
   "keywords": [
     "coin selection"
