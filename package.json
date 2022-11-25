@@ -1,12 +1,12 @@
 {
-  "name": "@fivebinaries/coin-selection",
+  "name": "@cardano/coin-selection",
   "version": "2.1.0",
   "description": "",
   "keywords": [
     "coin selection"
   ],
-  "license": "Apache-2.0",
-  "author": "fivebinaries.com",
+  "license": "MIT",
+  "author": "lixiao.dev@gmail.com",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "files": [
