@@ -749,10 +749,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emurgo/cardano-serialization-lib-asmjs@npm:^11.1.1":
-  version: 11.1.1
-  resolution: "@emurgo/cardano-serialization-lib-asmjs@npm:11.1.1"
-  checksum: 2c74a2b2dd4df3116d523a0cd35b42c45bace0337d5c1a1b810336cf7a837bb36b8cde8e4fba3b94757227030c654a6e67971faaf09647efaa27daaa29ba2be4
+"@emurgo/cardano-serialization-lib-asmjs@npm:11.1.0":
+  version: 11.1.0
+  resolution: "@emurgo/cardano-serialization-lib-asmjs@npm:11.1.0"
+  checksum: 17f1646b3d70c36670c9adefbc007d9fd9ff1bbfdf1ca7bd971534c46d7d5fc075c423cb89a0dc10b07d8acd97a60a351c8ad7b7e54f8a135fdb0c8860ccf787
   languageName: node
   linkType: hard
 
@@ -2067,6 +2067,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bignumber.js@npm:^9.0.1":
+  version: 9.1.0
+  resolution: "bignumber.js@npm:9.1.0"
+  checksum: 52ec2bb5a3874d7dc1a1018f28f8f7aff4683515ffd09d6c2d93191343c76567ae0ee32cc45149d53afb2b904bc62ed471a307b35764beea7e9db78e56bef6c6
+  languageName: node
+  linkType: hard
+
 "brace-expansion@npm:^1.1.7":
   version: 1.1.11
   resolution: "brace-expansion@npm:1.1.11"
@@ -2205,13 +2212,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "cardano-coin-selection@workspace:."
   dependencies:
-    "@emurgo/cardano-serialization-lib-asmjs": ^11.1.1
+    "@emurgo/cardano-serialization-lib-asmjs": 11.1.0
     "@emurgo/cardano-serialization-lib-nodejs": 11.0.0
     "@swc-node/jest": ^1.5.2
     "@types/jest": ^28.1.6
     "@types/node": ^16.3.2
     "@typescript-eslint/eslint-plugin": ^5.32.0
     "@typescript-eslint/parser": 5.32.0
+    bignumber.js: ^9.0.1
     eslint: 8.21.0
     eslint-config-prettier: 8.5.0
     eslint-plugin-import: 2.26.0
@@ -2222,6 +2230,8 @@ __metadata:
     prettier: 2.7.1
     rimraf: ^3.0.2
     typescript: ^4.7.4
+  peerDependencies:
+    bignumber.js: ^9.0.1
   languageName: unknown
   linkType: soft
 

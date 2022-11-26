@@ -11,5 +11,7 @@ module.exports = {
     'no-console': 'off',
     'arrow-parens': [2, 'as-needed'],
     'prettier/prettier': 2,
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/ban-ts-comment": "off"
   },
 };
