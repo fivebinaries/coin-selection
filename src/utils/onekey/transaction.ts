@@ -11,7 +11,7 @@ export const composeTxPlan = (
   changeAddress: string,
   outputs: IOutput[],
   options?: { debug: boolean },
-): PrecomposedTransaction => {
+): Promise<PrecomposedTransaction> => {
   const logger = getLogger(!!options?.debug);
   const transformUtxos = utxos.map(utxo => ({
     address: transferInfo.from,
@@ -33,7 +33,7 @@ export const composeTxPlan = (
         debug: options?.debug ?? false,
       },
     );
-    return txPlan;
+    return Promise.resolve(txPlan);
   } catch (err: unknown) {
     if ((err as { code: string })?.code === 'UTXO_BALANCE_INSUFFICIENT') {
       logger.debug('UTxO balance insufficient');
