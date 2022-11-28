@@ -14,10 +14,10 @@ export const composeTxPlan = (
 ): Promise<PrecomposedTransaction> => {
   const logger = getLogger(!!options?.debug);
   const transformUtxos = utxos.map(utxo => ({
-    address: transferInfo.from,
+    ...utxo,
     txHash: utxo.tx_hash,
     outputIndex: utxo.output_index,
-    ...utxo,
+    address: utxo.address ?? transferInfo.from,
   }));
   try {
     const txPlan = coinSelection(
