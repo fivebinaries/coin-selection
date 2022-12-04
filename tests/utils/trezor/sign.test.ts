@@ -4,12 +4,12 @@ import * as fixtures from './fixtures/sign';
 
 describe('trezor sign utils', () => {
   fixtures.sign.forEach(f => {
-    test(f.description, () => {
-      const signedTx = utils.signTransaction(f.hex, f.witnesses, {
+    test(f.description, async () => {
+      const signedTx = await utils.signTransaction(f.hex, f.witnesses, {
         testnet: f.testnet,
       });
       expect(
-        utils.signTransaction(f.hex, f.witnesses, { testnet: f.testnet }),
+        await utils.signTransaction(f.hex, f.witnesses, { testnet: f.testnet }),
       ).toBe(f.signedTx);
 
       const tx = CardanoWasm.Transaction.from_bytes(
