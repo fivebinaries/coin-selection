@@ -10,7 +10,7 @@ export const signTransaction = (
   // txMetadata: CardanoWasm.AuxiliaryData,
   signedWitnesses: CardanoSignedTxWitness[],
   options?: { testnet?: boolean },
-): string => {
+): Promise<string> => {
   const txBody = CardanoWasm.TransactionBody.from_bytes(
     Uint8Array.from(Buffer.from(txBodyHex, 'hex')),
   );
@@ -61,5 +61,5 @@ export const signTransaction = (
 
   const transaction = CardanoWasm.Transaction.new(txBody, witnesses);
   const serializedTx = Buffer.from(transaction.to_bytes()).toString('hex');
-  return serializedTx;
+  return Promise.resolve(serializedTx);
 };
