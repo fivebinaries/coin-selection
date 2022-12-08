@@ -73,14 +73,12 @@ const convertCborTxToEncodeTx = async (
 
   // Fee
   const fee = body.fee().to_str();
-  console.log('Fee: ', fee);
   const totalFeeInNative = new BigNumber(fee).shiftedBy(-1 * 6).toFixed();
 
   // inputs txs
   const encodeInputs: IEncodedTxADA['inputs'] = [];
   const inputs: { tx_hash: string; tx_index: number }[] = [];
   const inputsLen = body.inputs().len();
-  console.log('input length: ', inputsLen);
   for (let i = 0; i < inputsLen; i++) {
     const input = body.inputs().get(i);
     const txHash = Buffer.from(
@@ -88,16 +86,12 @@ const convertCborTxToEncodeTx = async (
       'utf8',
     ).toString('hex');
     const index = input.index();
-    console.log(`input ${i}: txHash: ${txHash}, index: ${index}`);
     inputs.push({ tx_hash: txHash, tx_index: index });
     const utxo = utxos.find(
       utxo => utxo.tx_hash === txHash && +utxo.tx_index === +index,
     );
     encodeInputs.push(utxo as unknown as IEncodeInput);
   }
-
-  console.log('inputs: ', inputs);
-  console.log('utxo inputs: ', encodeInputs);
 
   // outputs txs
   const outputs: IEncodeOutput[] = [];
@@ -113,7 +107,7 @@ const convertCborTxToEncodeTx = async (
     if (multiasset) {
       const keys = multiasset.keys(); // policy Ids of thee multiasset
       const N = keys.len();
-      // console.log(`${N} Multiassets in the UTXO`)
+      // (`${N} Multiassets in the UTXO`)
 
       for (let i = 0; i < N; i++) {
         const policyId = keys.get(i);
@@ -142,7 +136,6 @@ const convertCborTxToEncodeTx = async (
       }
     }
     outputs.push({ amount: amount, address: address, assets: assetsArray });
-    console.log(`output ${i}: address: ${address}, amount: ${amount}`);
   }
 
   const totalSpent = BigNumber.sum(...outputs.map(o => o.amount)).toFixed();
@@ -151,7 +144,7 @@ const convertCborTxToEncodeTx = async (
     .filter(o => !addresses.includes(o.address))
     .find(o => o.assets.length > 0)?.assets?.[0].unit;
 
-  return {
+  const encodedTx = {
     inputs: encodeInputs.map(input => ({
       ...input,
       txHash: input.tx_hash,
@@ -177,6 +170,10 @@ const convertCborTxToEncodeTx = async (
     },
     signOnly: true,
   };
+
+  console.log('Cardano DApp EncodedTx: ', encodedTx);
+
+  return encodedTx;
 };
 
 const signData = async (
