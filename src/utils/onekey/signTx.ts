@@ -14,6 +14,7 @@ export const signTransaction = async (
   accountIndex: number,
   utxos: IAdaUTXO[],
   xprv: string,
+  signOnly: boolean,
   partialSign?: boolean,
 ) => {
   const { paymentKey, stakeKey, accountKey } = await requestAccountKey(
@@ -42,6 +43,16 @@ export const signTransaction = async (
     keyHashes.key,
     partialSign,
   );
+
+  if (signOnly) {
+    return {
+      signedTx: Buffer.from(witnessSet.to_bytes() as any, 'utf8').toString(
+        'hex',
+      ),
+      txid: '',
+    };
+  }
+
   const transaction = CardanoWasm.Transaction.new(
     rawTx.body(),
     witnessSet,

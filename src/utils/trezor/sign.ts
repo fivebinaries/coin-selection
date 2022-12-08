@@ -9,7 +9,7 @@ export const signTransaction = (
   txBodyHex: string,
   // txMetadata: CardanoWasm.AuxiliaryData,
   signedWitnesses: CardanoSignedTxWitness[],
-  options?: { testnet?: boolean },
+  options?: { testnet?: boolean; signOnly?: boolean },
 ): Promise<string> => {
   const txBody = CardanoWasm.TransactionBody.from_bytes(
     Uint8Array.from(Buffer.from(txBodyHex, 'hex')),
@@ -57,6 +57,12 @@ export const signTransaction = (
   }
   if (vkeyWitnesses.len() > 0) {
     witnesses.set_vkeys(vkeyWitnesses);
+  }
+
+  if (options?.signOnly) {
+    return Promise.resolve(
+      Buffer.from(witnesses.to_bytes() as any, 'utf8').toString('hex'),
+    );
   }
 
   const transaction = CardanoWasm.Transaction.new(txBody, witnesses);

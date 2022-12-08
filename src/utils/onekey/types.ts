@@ -35,6 +35,7 @@ export type IEncodeInput = {
   data_hash: string;
   outputIndex: number;
   txHash: string;
+  tx_hash: string;
   tx_index: number;
 };
 

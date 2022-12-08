@@ -63,6 +63,7 @@ const getUtxos = async (
 const convertCborTxToEncodeTx = async (
   txHex: string,
   utxos: IAdaUTXO[],
+  addresses: string[],
 ): Promise<IEncodedTxADA> => {
   const tx = CardanoWasm.Transaction.from_bytes(Buffer.from(txHex, 'hex'));
   const body = tx.body();
@@ -143,8 +144,16 @@ const convertCborTxToEncodeTx = async (
 
   const totalSpent = BigNumber.sum(...outputs.map(o => o.amount)).toFixed();
 
+  const token = outputs
+    .filter(o => !addresses.includes(o.address))
+    .find(o => o.assets.length > 0)?.assets?.[0].unit;
+
   return {
-    inputs: encodeInputs,
+    inputs: encodeInputs.map(input => ({
+      ...input,
+      txHash: input.tx_hash,
+      outputIndex: input.tx_index,
+    })),
     outputs,
     fee,
     totalSpent,
@@ -153,6 +162,7 @@ const convertCborTxToEncodeTx = async (
       from: encodeInputs[0].address,
       to: outputs[0].address,
       amount: totalSpent,
+      token,
     },
     tx: {
       body: body.to_hex(),
