@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import * as CardanoWasm from '@emurgo/cardano-serialization-lib-asmjs';
+import * as CardanoMessage from '@emurgo/cardano-message-signing-asmjs/cardano_message_signing';
 import BigNumber from 'bignumber.js';
-import { getUtxos as getRawUtxos } from './signTx';
+import { getUtxos as getRawUtxos, requestAccountKey } from './signTx';
+import { DataSignError } from './error';
 import {
   IAdaAmount,
   IAdaUTXO,
@@ -176,9 +179,118 @@ const convertCborTxToEncodeTx = async (
   };
 };
 
+const signData = async (
+  address: string,
+  payload: string,
+  xprv: string,
+  accountIndex: number,
+) => {
+  const keyHash = await extractKeyHash(address);
+  if (!keyHash) {
+    throw DataSignError.InvalidFormat;
+  }
+  const prefix = keyHash.startsWith('addr_vkh') ? 'addr_vkh' : 'stake_vkh';
+  const { paymentKey, stakeKey } = await requestAccountKey(xprv, accountIndex);
+  const accountKey = prefix === 'addr_vkh' ? paymentKey : stakeKey;
+  const publicKey = accountKey.to_public();
+  if (keyHash !== publicKey.hash().to_bech32(prefix))
+    throw DataSignError.ProofGeneration;
+  const protectedHeaders = CardanoMessage.HeaderMap.new();
+  protectedHeaders.set_algorithm_id(
+    CardanoMessage.Label.from_algorithm_id(CardanoMessage.AlgorithmId.EdDSA),
+  );
+  // protectedHeaders.set_key_id(publicKey.as_bytes()); // Removed to adhere to CIP-30
+  protectedHeaders.set_header(
+    CardanoMessage.Label.new_text('address'),
+    CardanoMessage.CBORValue.new_bytes(Buffer.from(address, 'hex')),
+  );
+  const protectedSerialized =
+    CardanoMessage.ProtectedHeaderMap.new(protectedHeaders);
+  const unprotectedHeaders = CardanoMessage.HeaderMap.new();
+  const headers = CardanoMessage.Headers.new(
+    protectedSerialized,
+    unprotectedHeaders,
+  );
+  const builder = CardanoMessage.COSESign1Builder.new(
+    headers,
+    Buffer.from(payload, 'hex'),
+    false,
+  );
+  const toSign = builder.make_data_to_sign().to_bytes();
+
+  const signedSigStruc = accountKey.sign(toSign).to_bytes();
+  const coseSign1 = builder.build(signedSigStruc);
+
+  stakeKey.free();
+  paymentKey.free();
+
+  const key = CardanoMessage.COSEKey.new(
+    CardanoMessage.Label.from_key_type(CardanoMessage.KeyType.OKP),
+  );
+  key.set_algorithm_id(
+    CardanoMessage.Label.from_algorithm_id(CardanoMessage.AlgorithmId.EdDSA),
+  );
+  key.set_header(
+    CardanoMessage.Label.new_int(
+      CardanoMessage.Int.new_negative(CardanoMessage.BigNum.from_str('1')),
+    ),
+    CardanoMessage.CBORValue.new_int(
+      CardanoMessage.Int.new_i32(6), //CardanoMessage.CurveType.Ed25519
+    ),
+  ); // crv (-1) set to Ed25519 (6)
+  key.set_header(
+    CardanoMessage.Label.new_int(
+      CardanoMessage.Int.new_negative(CardanoMessage.BigNum.from_str('2')),
+    ),
+    CardanoMessage.CBORValue.new_bytes(publicKey.as_bytes()),
+  ); // x (-2) set to public key
+
+  return {
+    signature: Buffer.from(coseSign1.to_bytes()).toString('hex'),
+    key: Buffer.from(key.to_bytes()).toString('hex'),
+  };
+};
+
+export const extractKeyHash = async (address: string) => {
+  try {
+    const addr = CardanoWasm.BaseAddress.from_address(
+      CardanoWasm.Address.from_bytes(Buffer.from(address, 'hex')),
+    );
+    return addr!.payment_cred()?.to_keyhash()!.to_bech32('addr_vkh');
+  } catch (e) {
+    // ignore
+  }
+  try {
+    const addr = CardanoWasm.EnterpriseAddress.from_address(
+      CardanoWasm.Address.from_bytes(Buffer.from(address, 'hex')),
+    );
+    return addr!.payment_cred().to_keyhash()!.to_bech32('addr_vkh');
+  } catch (e) {
+    // ignore
+  }
+  try {
+    const addr = CardanoWasm.PointerAddress.from_address(
+      CardanoWasm.Address.from_bytes(Buffer.from(address, 'hex')),
+    );
+    return addr!.payment_cred().to_keyhash()!.to_bech32('addr_vkh');
+  } catch (e) {
+    // ignore
+  }
+  try {
+    const addr = CardanoWasm.RewardAddress.from_address(
+      CardanoWasm.Address.from_bytes(Buffer.from(address, 'hex')),
+    );
+    return addr!.payment_cred().to_keyhash()!.to_bech32('stake_vkh');
+  } catch (e) {
+    // ignore
+  }
+  throw DataSignError.AddressNotPK;
+};
+
 export const dAppUtils = {
   getBalance,
   getAddresses,
   getUtxos,
   convertCborTxToEncodeTx,
+  signData,
 };

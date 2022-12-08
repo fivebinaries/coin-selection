@@ -749,6 +749,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@emurgo/cardano-message-signing-asmjs@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@emurgo/cardano-message-signing-asmjs@npm:1.0.1"
+  checksum: 2cdb4c2fbf78632b6256e2300dab6cab0bdbae7c9e80d3f619e1f09fc53b3ec7ab659ae4c9094dac3e1cbdb756d0bc0d2927f4619b34b1766e97a7d198aa9e3a
+  languageName: node
+  linkType: hard
+
 "@emurgo/cardano-serialization-lib-asmjs@npm:11.1.0":
   version: 11.1.0
   resolution: "@emurgo/cardano-serialization-lib-asmjs@npm:11.1.0"
@@ -2212,6 +2219,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "cardano-coin-selection@workspace:."
   dependencies:
+    "@emurgo/cardano-message-signing-asmjs": ^1.0.1
     "@emurgo/cardano-serialization-lib-asmjs": 11.1.0
     "@emurgo/cardano-serialization-lib-nodejs": 11.0.0
     "@swc-node/jest": ^1.5.2
