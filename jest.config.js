@@ -13,10 +13,6 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)sx?$': ['@swc-node/jest'],
   },
-  moduleNameMapper: {
-    // Workaround for an error "Cannot find module @emurgo/cardano-serialization-lib-browser"
-    "@emurgo/cardano-serialization-lib-browser": "@emurgo/cardano-serialization-lib-nodejs",
-  },
   coverageThreshold: {
     // global: {
     //   branches: 37,
