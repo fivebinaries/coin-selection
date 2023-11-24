@@ -123,7 +123,8 @@ export const largestFirst = (
   let forceAnotherRound = false;
   while (!sufficientUtxos) {
     if (maxOutput) {
-      // reset previously computed maxOutput in order to correctly calculate a potential change output
+      // Reset previously computed maxOutput in order to correctly calculate a potential change output
+      // when new utxo is added to the set
       preparedOutputs[maxOutputIndex] = setMinUtxoValueForOutputs(
         txBuilder,
         [maxOutput],
@@ -145,6 +146,7 @@ export const largestFirst = (
     if (maxOutput) {
       // set amount for a max output from a changeOutput calculated above
       const { maxOutput: newMaxOutput } = setMaxOutput(
+        txBuilder,
         maxOutput,
         singleChangeOutput,
       );

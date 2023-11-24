@@ -130,3 +130,102 @@ export const utxo8 = Object.freeze({
     ],
   }),
 });
+
+export const setMaxAdaInputs = [
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 2,
+    amount: [
+      {
+        quantity: '2611207363',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 5,
+    amount: [
+      {
+        quantity: '1305603682',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 8,
+    amount: [
+      {
+        quantity: '652801841',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 11,
+    amount: [
+      {
+        quantity: '326400920',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 14,
+    amount: [
+      {
+        quantity: '163200460',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 17,
+    amount: [
+      {
+        quantity: '81600230',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 21,
+    amount: [
+      {
+        quantity: '40800115',
+        unit: 'lovelace',
+      },
+    ],
+  },
+  {
+    address:
+      'addr_test1qzq0nckg3ekgzuqg7w5p9mvgnd9ym28qh5grlph8xd2z92sj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfmsu8d9w5',
+    txHash: 'd6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c',
+    outputIndex: 22,
+    amount: [
+      {
+        quantity: '40800115',
+        unit: 'lovelace',
+      },
+    ],
+  },
+];

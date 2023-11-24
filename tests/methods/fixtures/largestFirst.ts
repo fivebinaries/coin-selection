@@ -1,6 +1,7 @@
 import { Certificate } from '../../../src/types/types';
 import {
   changeAddress,
+  setMaxAdaInputs,
   utxo1,
   utxo2,
   utxo3,
@@ -118,6 +119,44 @@ export const nonFinalCompose = [
 ];
 
 export const coinSelection = [
+  {
+    description: 'send max ada only utxos',
+    utxos: setMaxAdaInputs,
+    outputs: [
+      {
+        address:
+          'addr_test1qr9tax9jxzt05y65m8xanngng36mh7hpf23jy53xwyd9y5qj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfms0kcepv',
+        amount: undefined,
+        assets: [],
+        setMax: true,
+      },
+    ],
+    changeAddress: changeAddress,
+    certificates: [],
+    withdrawals: [],
+    accountPubKey:
+      'd507c8f866691bd96e131334c355188b1a1d0b2fa0ab11545075aab332d77d9eb19657ad13ee581b56b0f8d744d66ca356b93d42fe176b3de007d53e9c4c4e7a',
+    ttl: 66578367,
+    options: {},
+    result: {
+      totalSpent: '5222414726',
+      fee: '176721',
+      tx: {
+        body: 'a40088825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c02825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c05825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c08825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c0b825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c0e825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c11825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c15825820d6de3f33c3b421167eb1726c48129990ec16512dd829ad2239751ba49773b30c16018182583900cabe98b23096fa1354d9cdd9cd134475bbfae14aa3225226711a5250122a946b9ad3d2ddf029d3a828f0468aece76895f15c9efbd69b42771b0000000137450735021a0002b251031a03f7e7bf',
+        hash: '74a66a069530d96224b56d955eb1e58dde84774168f3d1fb4b5a972431cc18fa',
+        size: 481,
+      },
+      inputs: setMaxAdaInputs,
+      outputs: [
+        {
+          address:
+            'addr_test1qr9tax9jxzt05y65m8xanngng36mh7hpf23jy53xwyd9y5qj922xhxkn6twlq2wn4q50q352annk3903tj00h45mgfms0kcepv',
+          amount: '5222238005',
+          assets: [],
+        },
+      ],
+    },
+  },
   {
     description: 'send max sundae',
     utxos: [
