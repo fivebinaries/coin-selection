@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Fixed
+
+- UTXO_BALANCE_INSUFFICIENT while using `setMax` on ADA output
+
 ## [2.2.0] - 2023-10-06
 
 ### Added
