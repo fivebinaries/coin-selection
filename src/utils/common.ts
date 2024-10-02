@@ -24,9 +24,9 @@ export const bigNumFromStr = (num: string): CardanoWasm.BigNum =>
 export const getProtocolMagic = (
   tesnet?: boolean,
 ):
-  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['mainnet']
-  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet_preview']
-  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet_preprod'] =>
+  | (typeof CARDANO_PARAMS.PROTOCOL_MAGICS)['mainnet']
+  | (typeof CARDANO_PARAMS.PROTOCOL_MAGICS)['testnet_preview']
+  | (typeof CARDANO_PARAMS.PROTOCOL_MAGICS)['testnet_preprod'] =>
   tesnet
     ? CARDANO_PARAMS.PROTOCOL_MAGICS.testnet_preview
     : CARDANO_PARAMS.PROTOCOL_MAGICS.mainnet;
@@ -34,9 +34,9 @@ export const getProtocolMagic = (
 export const getNetworkId = (
   testnet?: boolean,
 ):
-  | typeof CARDANO_PARAMS.NETWORK_IDS['mainnet']
-  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet_preprod']
-  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet_preview'] =>
+  | (typeof CARDANO_PARAMS.NETWORK_IDS)['mainnet']
+  | (typeof CARDANO_PARAMS.NETWORK_IDS)['testnet_preprod']
+  | (typeof CARDANO_PARAMS.NETWORK_IDS)['testnet_preview'] =>
   testnet
     ? CARDANO_PARAMS.NETWORK_IDS.testnet_preview
     : CARDANO_PARAMS.NETWORK_IDS.mainnet;
