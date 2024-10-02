@@ -30,12 +30,14 @@ describe('common utils', () => {
       const output = utils.buildTxOutput(f.output, f.dummyAddress);
       const assets = utils.multiAssetToArray(output.amount().multiasset());
 
-      let address = output.address().to_bech32(); // by default expect shelley
+      let address;
       if (CardanoWasm.ByronAddress.is_valid(f.result.address)) {
         // expecting byron address
         address = CardanoWasm.ByronAddress.from_bytes(
           output.address().to_bytes(),
         ).to_base58();
+      } else {
+        address = output.address().to_bech32(); // by default expect shelley
       }
       expect(output.amount().coin().to_str()).toBe(f.result.amount);
       expect(address).toBe(f.result.address);

@@ -29,11 +29,13 @@ export const ERROR = {
 export const CARDANO_PARAMS = {
   PROTOCOL_MAGICS: {
     mainnet: CardanoWasm.NetworkInfo.mainnet().protocol_magic(),
-    testnet: CardanoWasm.NetworkInfo.testnet().protocol_magic(),
+    testnet_preprod: CardanoWasm.NetworkInfo.testnet_preprod().protocol_magic(),
+    testnet_preview: CardanoWasm.NetworkInfo.testnet_preview().protocol_magic(),
   },
   NETWORK_IDS: {
     mainnet: CardanoWasm.NetworkInfo.mainnet().network_id(),
-    testnet: CardanoWasm.NetworkInfo.testnet().network_id(),
+    testnet_preprod: CardanoWasm.NetworkInfo.testnet_preprod().network_id(),
+    testnet_preview: CardanoWasm.NetworkInfo.testnet_preview().network_id(),
   },
   COINS_PER_UTXO_BYTE: '4310',
   MAX_TX_SIZE: 16384,

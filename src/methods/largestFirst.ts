@@ -93,7 +93,7 @@ export const largestFirst = (
   const addUtxoToSelection = (utxo: Utxo) => {
     const { input, address, amount } = buildTxInput(utxo);
     const fee = txBuilder.fee_for_input(address, input, amount);
-    txBuilder.add_input(address, input, amount);
+    txBuilder.add_regular_input(address, input, amount);
     usedUtxos.push(utxo);
     totalFeesAmount = totalFeesAmount.checked_add(fee);
     utxosTotalAmount = utxosTotalAmount.checked_add(

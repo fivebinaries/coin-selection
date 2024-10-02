@@ -25,18 +25,20 @@ export const getProtocolMagic = (
   tesnet?: boolean,
 ):
   | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['mainnet']
-  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet'] =>
+  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet_preview']
+  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet_preprod'] =>
   tesnet
-    ? CARDANO_PARAMS.PROTOCOL_MAGICS.testnet
+    ? CARDANO_PARAMS.PROTOCOL_MAGICS.testnet_preview
     : CARDANO_PARAMS.PROTOCOL_MAGICS.mainnet;
 
 export const getNetworkId = (
   testnet?: boolean,
 ):
   | typeof CARDANO_PARAMS.NETWORK_IDS['mainnet']
-  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet'] =>
+  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet_preprod']
+  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet_preview'] =>
   testnet
-    ? CARDANO_PARAMS.NETWORK_IDS.testnet
+    ? CARDANO_PARAMS.NETWORK_IDS.testnet_preview
     : CARDANO_PARAMS.NETWORK_IDS.mainnet;
 
 export const parseAsset = (
@@ -269,7 +271,7 @@ export const prepareCertificates = (
   if (certificates.length === 0) return preparedCertificates;
 
   const stakeKey = accountKey.derive(2).derive(0);
-  const stakeCred = CardanoWasm.StakeCredential.from_keyhash(
+  const stakeCred = CardanoWasm.Credential.from_keyhash(
     stakeKey.to_raw_key().hash(),
   );
 
@@ -744,7 +746,7 @@ export const getRandomUtxo = (
     addUtxo: () => {
       utxoSelected.push(utxo);
       const { input, address, amount } = buildTxInput(utxo);
-      txBuilder.add_input(address, input, amount);
+      txBuilder.add_regular_input(address, input, amount);
       utxoRemaining.splice(utxoRemaining.indexOf(utxo), 1);
     },
   };
