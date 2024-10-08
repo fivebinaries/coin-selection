@@ -15,6 +15,7 @@ import {
   UserOutput,
   Asset,
   ChangeOutput,
+  CardanoDRepType,
 } from '../types/types';
 import { CoinSelectionError } from './errors';
 
@@ -299,6 +300,34 @@ export const prepareCertificates = (
           CardanoWasm.StakeDeregistration.new(stakeCred),
         ),
       );
+    } else if (cert.type === CertificateType.VOTE_DELEGATION) {
+      let targetDRep: CardanoWasm.DRep;
+      switch (cert.dRep.type) {
+        case CardanoDRepType.ABSTAIN:
+          targetDRep = CardanoWasm.DRep.new_always_abstain();
+          break;
+        case CardanoDRepType.NO_CONFIDENCE:
+          targetDRep = CardanoWasm.DRep.new_always_no_confidence();
+          break;
+        case CardanoDRepType.KEY_HASH:
+          targetDRep = CardanoWasm.DRep.new_key_hash(
+            CardanoWasm.Ed25519KeyHash.from_hex(cert.dRep.keyHash),
+          );
+          break;
+        case CardanoDRepType.SCRIPT_HASH:
+          targetDRep = CardanoWasm.DRep.new_script_hash(
+            CardanoWasm.ScriptHash.from_hex(cert.dRep.scriptHash),
+          );
+          break;
+      }
+
+      if (targetDRep) {
+        preparedCertificates.add(
+          CardanoWasm.Certificate.new_vote_delegation(
+            CardanoWasm.VoteDelegation.new(stakeCred, targetDRep),
+          ),
+        );
+      }
     } else {
       throw new CoinSelectionError(ERROR.UNSUPPORTED_CERTIFICATE_TYPE);
     }
@@ -311,6 +340,7 @@ export const calculateRequiredDeposit = (
 ): number => {
   const CertificateDeposit = {
     [CertificateType.STAKE_DELEGATION]: 0,
+    [CertificateType.VOTE_DELEGATION]: 0,
     [CertificateType.STAKE_POOL_REGISTRATION]: 500000000,
     [CertificateType.STAKE_REGISTRATION]: 2000000,
     [CertificateType.STAKE_DEREGISTRATION]: -2000000,
