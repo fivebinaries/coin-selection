@@ -67,6 +67,28 @@ export enum CardanoAddressType {
   REWARD_SCRIPT = 15,
 }
 
+export enum CardanoDRepType {
+  KEY_HASH = 0,
+  SCRIPT_HASH = 1,
+  ABSTAIN = 2,
+  NO_CONFIDENCE = 3,
+}
+
+export type DRep =
+  | {
+      type: CardanoDRepType.KEY_HASH;
+      keyHash: string;
+    }
+  | {
+      type: CardanoDRepType.SCRIPT_HASH;
+      scriptHash: string;
+    }
+  | {
+      type: CardanoDRepType.ABSTAIN | CardanoDRepType.NO_CONFIDENCE;
+      keyHash?: never;
+      scriptHash?: never;
+    };
+
 export interface CoinSelectionResult {
   tx: { body: string; hash: string; size: number };
   inputs: Utxo[];
@@ -116,10 +138,16 @@ export interface CertificateStakePoolRegistration {
   pool_parameters: Record<string, unknown>;
 }
 
+export interface CertificateVoteDelegation {
+  type: CertificateTypeType['VOTE_DELEGATION'];
+  dRep: DRep;
+}
+
 export type Certificate =
   | CertificateStakeRegistration
   | CertificateStakeDelegation
-  | CertificateStakePoolRegistration;
+  | CertificateStakePoolRegistration
+  | CertificateVoteDelegation;
 
 export interface Options {
   feeParams?: { a: string };

@@ -2,6 +2,7 @@ import {
   transformToTokenBundle,
   transformToTrezorInputs,
   transformToTrezorOutputs,
+  drepIdToHex,
 } from './transformations';
 import { signTransaction } from './sign';
 
@@ -10,4 +11,5 @@ export {
   transformToTrezorInputs,
   transformToTrezorOutputs,
   signTransaction,
+  drepIdToHex,
 };

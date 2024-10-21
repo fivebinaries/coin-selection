@@ -13,4 +13,10 @@ describe('trezor transformation utils', () => {
       ).toMatchObject(f.result);
     });
   });
+
+  fixtures.drepIdToHex.forEach(f => {
+    test(f.description, () => {
+      expect(utils.drepIdToHex(f.drepId)).toStrictEqual(f.result);
+    });
+  });
 });

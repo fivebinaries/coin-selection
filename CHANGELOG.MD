@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Support for voting delegation certificates
+
+### Changed
+
+- Upgraded cardano-serialization-lib to Chang-compatible release (v12)
+
 ## [2.2.1] - 2023-11-29
 
 ### Fixed

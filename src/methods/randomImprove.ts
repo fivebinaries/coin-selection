@@ -106,7 +106,7 @@ const selection = (
         ) {
           utxoSelected.push(utxo);
           const { input, address, amount } = buildTxInput(utxo);
-          txBuilder.add_input(address, input, amount);
+          txBuilder.add_regular_input(address, input, amount);
           utxoRemaining.splice(utxoRemaining.indexOf(utxo), 1);
         } else {
           // The selection was not improved by including

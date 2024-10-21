@@ -1,4 +1,8 @@
-import { Certificate } from '../../../src/types/types';
+import {
+  CardanoDRepType,
+  Certificate,
+  CertificateVoteDelegation,
+} from '../../../src/types/types';
 import {
   changeAddress,
   setMaxAdaInputs,
@@ -732,6 +736,138 @@ export const coinSelection = [
           isChange: true,
           address: changeAddress,
           amount: '14828691',
+          assets: [],
+        },
+      ],
+    },
+  },
+  {
+    description:
+      'withdrawing rewards: 1 ADA only utxo, 1 change output, vote drep keyhash',
+    utxos: [utxo1],
+    outputs: [],
+    changeAddress: changeAddress,
+    certificates: [
+      {
+        type: 9,
+        dRep: {
+          type: 0, // keyhash
+          keyHash: '4519f294d80b0fcc6697bde8f36629be8ebf9527be023fe73673f1a9',
+        },
+      } as CertificateVoteDelegation,
+    ],
+    withdrawals: [
+      {
+        amount: '10000000',
+        stakingPath: "m/1852'/1815'/0'/2/0",
+        stakeAddress:
+          'stake1u8yk3dcuj8yylwvnzz953yups6mmuvt0vtjmxl2gmgceqjqz2yfd2',
+      },
+    ],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    result: {
+      tx: {
+        body: 'a500818258203c388acb799a37a4f1cc99bec7626637b0b80626b9ef7c7a687282cab701178d00018182583901f8a4be8308c12b910252b6fd6ee4a98730300009382becc049a6e618476aacdafaf01e68c2f072270f078c9689da6139eba4b309e1d5615f1a00e22787021a0002ba39048183098200581cfb52d3055a3a3a3238ce219a3fc13fe4d8797d5062e8dd4670c7d29b8200581c4519f294d80b0fcc6697bde8f36629be8ebf9527be023fe73673f1a905a1581de1c968b71c91c84fb993108b48938186b7be316f62e5b37d48da3190481a00989680',
+        hash: 'b05209422a811ccfc5a1795b2b65c39437611f615799e430a7968ee53c47e908',
+        size: 527,
+      },
+      totalSpent: '178745',
+      fee: '178745',
+      deposit: '0',
+      inputs: [utxo1],
+      outputs: [
+        {
+          isChange: true,
+          address: changeAddress,
+          amount: '14821255',
+          assets: [],
+        },
+      ],
+    },
+  },
+  {
+    description:
+      'withdrawing rewards: 1 ADA only utxo, 1 change output, vote delegation abstain',
+    utxos: [utxo1],
+    outputs: [],
+    changeAddress: changeAddress,
+    certificates: [
+      {
+        type: 9,
+        dRep: {
+          type: 2, // abstain
+        },
+      } as CertificateVoteDelegation,
+    ],
+    withdrawals: [
+      {
+        amount: '10000000',
+        stakingPath: "m/1852'/1815'/0'/2/0",
+        stakeAddress:
+          'stake1u8yk3dcuj8yylwvnzz953yups6mmuvt0vtjmxl2gmgceqjqz2yfd2',
+      },
+    ],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    result: {
+      tx: {
+        body: 'a500818258203c388acb799a37a4f1cc99bec7626637b0b80626b9ef7c7a687282cab701178d00018182583901f8a4be8308c12b910252b6fd6ee4a98730300009382becc049a6e618476aacdafaf01e68c2f072270f078c9689da6139eba4b309e1d5615f1a00e22caf021a0002b511048183098200581cfb52d3055a3a3a3238ce219a3fc13fe4d8797d5062e8dd4670c7d29b810205a1581de1c968b71c91c84fb993108b48938186b7be316f62e5b37d48da3190481a00989680',
+        hash: 'b2db184413b50a57cc7d95bbe10682186bc2d374f7e92ebbe95ffdb726f6836f',
+        size: 497,
+      },
+      totalSpent: '177425',
+      fee: '177425',
+      deposit: '0',
+      inputs: [utxo1],
+      outputs: [
+        {
+          isChange: true,
+          address: changeAddress,
+          amount: '14822575',
+          assets: [],
+        },
+      ],
+    },
+  },
+  {
+    description:
+      'withdrawing rewards: 1 ADA only utxo, 1 change output, vote delegation drep id',
+    utxos: [utxo1],
+    outputs: [],
+    changeAddress: changeAddress,
+    certificates: [
+      {
+        type: 9,
+        dRep: {
+          type: CardanoDRepType.KEY_HASH,
+          keyHash: '3a7f09d3df4cf66a7399c2b05bfa234d5a29560c311fc5db4c490711',
+        },
+      } as CertificateVoteDelegation,
+    ],
+    withdrawals: [
+      {
+        amount: '10000000',
+        stakingPath: "m/1852'/1815'/0'/2/0",
+        stakeAddress:
+          'stake1u8yk3dcuj8yylwvnzz953yups6mmuvt0vtjmxl2gmgceqjqz2yfd2',
+      },
+    ],
+    accountPubKey:
+      'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
+    options: {},
+    result: {
+      totalSpent: '178745',
+      fee: '178745',
+      deposit: '0',
+      inputs: [utxo1],
+      outputs: [
+        {
+          isChange: true,
+          address: changeAddress,
+          amount: '14821255',
           assets: [],
         },
       ],
