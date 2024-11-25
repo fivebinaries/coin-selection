@@ -15,9 +15,11 @@ describe('trezor sign utils', () => {
       const tx = CardanoWasm.Transaction.from_bytes(
         Buffer.from(signedTx, 'hex'),
       );
-      const txhash = Buffer.from(
-        CardanoWasm.hash_transaction(tx.body()).to_bytes(),
-      ).toString('hex');
+      const txhash = CardanoWasm.FixedTransaction.new_from_body_bytes(
+        tx.body().to_bytes(),
+      )
+        .transaction_hash()
+        .to_hex();
 
       // just sanity check, signing shouldn't change the hash
       expect(txhash).toBe(f.txHash);

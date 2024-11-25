@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Upgraded cardano-serialization-lib to Chang-compatible release (v12)
+- Upgraded cardano-serialization-lib to Chang-compatible release (v13)
+- All set types are now serialized with a tag "258", which will become mandatory after the next hard fork (HF)
 
 ## [2.2.1] - 2023-11-29
 

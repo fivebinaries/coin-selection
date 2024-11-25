@@ -254,9 +254,11 @@ export const randomImprove = (
 
   txBuilder.set_fee(fee);
   const txBody = txBuilder.build();
-  const txHash = Buffer.from(
-    CardanoWasm.hash_transaction(txBody).to_bytes(),
-  ).toString('hex');
+  const txHash = CardanoWasm.FixedTransaction.new_from_body_bytes(
+    txBody.to_bytes(),
+  )
+    .transaction_hash()
+    .to_hex();
   const txBodyHex = Buffer.from(txBody.to_bytes()).toString('hex');
 
   // reorder inputs to match order within tx
