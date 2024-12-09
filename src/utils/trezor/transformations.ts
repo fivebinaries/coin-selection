@@ -1,9 +1,11 @@
+import * as CardanoWasm from '@emurgo/cardano-serialization-lib-nodejs';
+
 import {
   CardanoAddressParameters,
   CardanoInput,
   CardanoOutput,
 } from '../../types/trezor';
-import { Asset, FinalOutput, Utxo } from '../../types/types';
+import { Asset, CardanoDRepType, FinalOutput, Utxo } from '../../types/types';
 import { parseAsset } from '../common';
 
 interface AssetInPolicy {
@@ -91,4 +93,37 @@ export const transformToTrezorOutputs = (
       tokenBundle: transformToTokenBundle(output.assets),
     };
   });
+};
+
+export const drepIdToHex = (
+  drepId: string,
+): {
+  type: CardanoDRepType.KEY_HASH | CardanoDRepType.SCRIPT_HASH;
+  hex: string;
+} => {
+  const drep = CardanoWasm.DRep.from_bech32(drepId);
+  const kind = drep.kind() as unknown as
+    | CardanoDRepType.KEY_HASH
+    | CardanoDRepType.SCRIPT_HASH;
+
+  let drepHex: string | undefined;
+  switch (kind) {
+    case CardanoDRepType.KEY_HASH:
+      drepHex = drep.to_key_hash()?.to_hex();
+      break;
+    case CardanoDRepType.SCRIPT_HASH:
+      drepHex = drep.to_script_hash()?.to_hex();
+      break;
+  }
+
+  if (!drepHex) {
+    throw Error('Invalid drepId');
+  }
+
+  const drepData = {
+    type: kind,
+    hex: drepHex,
+  };
+  drep.free();
+  return drepData;
 };

@@ -87,3 +87,22 @@ export const transformToTrezorOutputs = [
     ],
   },
 ];
+
+export const drepIdToHex = [
+  {
+    description: 'keyHash drep',
+    drepId: 'drep16pxnn38ykshfahwmkaqmke3kdqaksg4w935d7uztvh8y5l48pxv',
+    result: {
+      type: 0,
+      hex: 'd04d39c4e4b42e9edddbb741bb6636683b6822ae2c68df704b65ce4a',
+    },
+  },
+  {
+    description: 'scriptHash drep',
+    drepId: 'drep_script16pxnn38ykshfahwmkaqmke3kdqaksg4w935d7uztvh8y5sh6f6d',
+    result: {
+      type: 1,
+      hex: 'd04d39c4e4b42e9edddbb741bb6636683b6822ae2c68df704b65ce4a',
+    },
+  },
+];

@@ -136,8 +136,8 @@ export const nonFinalCompose = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '168053',
-      fee: '168053',
+      totalSpent: '168317',
+      fee: '168317',
     },
   },
   {
@@ -158,8 +158,8 @@ export const nonFinalCompose = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '2168053',
-      fee: '168053',
+      totalSpent: '2168317',
+      fee: '168317',
     },
   },
   {
@@ -188,8 +188,8 @@ export const nonFinalCompose = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '6174301',
-      fee: '174301',
+      totalSpent: '6174565',
+      fee: '174565',
     },
   },
 ];
@@ -294,8 +294,8 @@ export const coinSelection = [
       'ec8fdf616242f430855ad7477acda53395eb30c295f5a7ef038712578877375b5a2f00353c9c5cc88c7ff18e71dc08724d90fc238213b789c0b02438e336be07',
     options: {},
     result: {
-      totalSpent: '2884313',
-      fee: '194717',
+      totalSpent: '2884577',
+      fee: '194981',
       inputs: UTXO_REAL_SAME_POLICY,
       outputs: [
         // external
@@ -327,7 +327,7 @@ export const coinSelection = [
         // change
         {
           isChange: true,
-          amount: '699786705',
+          amount: '699786441',
           address:
             'addr_test1qq43pzxxgfdvffrw6jnrej9840nuylaykv7uzcy56t02xv8m2tfs2k368ger3n3pngluz0lympuh65rzarw5vux862dszv2e9w',
           assets: [

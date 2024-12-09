@@ -15,6 +15,7 @@ import {
   UserOutput,
   Asset,
   ChangeOutput,
+  CardanoDRepType,
 } from '../types/types';
 import { CoinSelectionError } from './errors';
 
@@ -24,19 +25,21 @@ export const bigNumFromStr = (num: string): CardanoWasm.BigNum =>
 export const getProtocolMagic = (
   tesnet?: boolean,
 ):
-  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['mainnet']
-  | typeof CARDANO_PARAMS.PROTOCOL_MAGICS['testnet'] =>
+  | (typeof CARDANO_PARAMS.PROTOCOL_MAGICS)['mainnet']
+  | (typeof CARDANO_PARAMS.PROTOCOL_MAGICS)['testnet_preview']
+  | (typeof CARDANO_PARAMS.PROTOCOL_MAGICS)['testnet_preprod'] =>
   tesnet
-    ? CARDANO_PARAMS.PROTOCOL_MAGICS.testnet
+    ? CARDANO_PARAMS.PROTOCOL_MAGICS.testnet_preview
     : CARDANO_PARAMS.PROTOCOL_MAGICS.mainnet;
 
 export const getNetworkId = (
   testnet?: boolean,
 ):
-  | typeof CARDANO_PARAMS.NETWORK_IDS['mainnet']
-  | typeof CARDANO_PARAMS.NETWORK_IDS['testnet'] =>
+  | (typeof CARDANO_PARAMS.NETWORK_IDS)['mainnet']
+  | (typeof CARDANO_PARAMS.NETWORK_IDS)['testnet_preprod']
+  | (typeof CARDANO_PARAMS.NETWORK_IDS)['testnet_preview'] =>
   testnet
-    ? CARDANO_PARAMS.NETWORK_IDS.testnet
+    ? CARDANO_PARAMS.NETWORK_IDS.testnet_preview
     : CARDANO_PARAMS.NETWORK_IDS.mainnet;
 
 export const parseAsset = (
@@ -269,7 +272,7 @@ export const prepareCertificates = (
   if (certificates.length === 0) return preparedCertificates;
 
   const stakeKey = accountKey.derive(2).derive(0);
-  const stakeCred = CardanoWasm.StakeCredential.from_keyhash(
+  const stakeCred = CardanoWasm.Credential.from_keyhash(
     stakeKey.to_raw_key().hash(),
   );
 
@@ -297,6 +300,34 @@ export const prepareCertificates = (
           CardanoWasm.StakeDeregistration.new(stakeCred),
         ),
       );
+    } else if (cert.type === CertificateType.VOTE_DELEGATION) {
+      let targetDRep: CardanoWasm.DRep;
+      switch (cert.dRep.type) {
+        case CardanoDRepType.ABSTAIN:
+          targetDRep = CardanoWasm.DRep.new_always_abstain();
+          break;
+        case CardanoDRepType.NO_CONFIDENCE:
+          targetDRep = CardanoWasm.DRep.new_always_no_confidence();
+          break;
+        case CardanoDRepType.KEY_HASH:
+          targetDRep = CardanoWasm.DRep.new_key_hash(
+            CardanoWasm.Ed25519KeyHash.from_hex(cert.dRep.keyHash),
+          );
+          break;
+        case CardanoDRepType.SCRIPT_HASH:
+          targetDRep = CardanoWasm.DRep.new_script_hash(
+            CardanoWasm.ScriptHash.from_hex(cert.dRep.scriptHash),
+          );
+          break;
+      }
+
+      if (targetDRep) {
+        preparedCertificates.add(
+          CardanoWasm.Certificate.new_vote_delegation(
+            CardanoWasm.VoteDelegation.new(stakeCred, targetDRep),
+          ),
+        );
+      }
     } else {
       throw new CoinSelectionError(ERROR.UNSUPPORTED_CERTIFICATE_TYPE);
     }
@@ -309,6 +340,7 @@ export const calculateRequiredDeposit = (
 ): number => {
   const CertificateDeposit = {
     [CertificateType.STAKE_DELEGATION]: 0,
+    [CertificateType.VOTE_DELEGATION]: 0,
     [CertificateType.STAKE_POOL_REGISTRATION]: 500000000,
     [CertificateType.STAKE_REGISTRATION]: 2000000,
     [CertificateType.STAKE_DEREGISTRATION]: -2000000,
@@ -744,7 +776,7 @@ export const getRandomUtxo = (
     addUtxo: () => {
       utxoSelected.push(utxo);
       const { input, address, amount } = buildTxInput(utxo);
-      txBuilder.add_input(address, input, amount);
+      txBuilder.add_regular_input(address, input, amount);
       utxoRemaining.splice(utxoRemaining.indexOf(utxo), 1);
     },
   };
